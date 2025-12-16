@@ -1,0 +1,375 @@
+import { useParams, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { Star, MapPin, Clock, ArrowLeft, Mail, CheckCircle, Calendar, GraduationCap, Award, Users, FileText, Video, Sparkles } from "lucide-react";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { mockTutors, Tutor, Review } from "@/data/tutors";
+import { supabase } from "@/integrations/supabase/client";
+import Reviews from "@/components/Reviews";
+import BookingCalendar from "@/components/BookingCalendar";
+
+interface EnhancedTutor extends Tutor {
+  education?: string;
+  certificates?: string[];
+  course_topics?: string[];
+  teaching_levels?: string[];
+  intro_video_url?: string;
+  suitable_for?: string[];
+  reviews?: Review[];
+}
+
+const isNewTutor = (createdAt?: string): boolean => {
+  if (!createdAt) return false;
+  const created = new Date(createdAt);
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  return created > thirtyDaysAgo;
+};
+
+const getYouTubeEmbedUrl = (url: string): string | null => {
+  const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\s]+)/);
+  return match ? `https://www.youtube.com/embed/${match[1]}` : null;
+};
+
+const TutorProfile = () => {
+  const { id } = useParams();
+  const [tutor, setTutor] = useState<EnhancedTutor | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isNew, setIsNew] = useState(false);
+
+  useEffect(() => {
+    const fetchTutor = async () => {
+      // First try to fetch from database
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("user_id", id)
+        .maybeSingle();
+
+      if (data && !error) {
+        setTutor({
+          id: data.user_id,
+          name: data.full_name,
+          avatar: data.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(data.full_name)}&background=0d9488&color=fff`,
+          subjects: data.subjects || [],
+          location: data.location || "Location not set",
+          bio: data.bio || "No bio yet",
+          rating: 5.0,
+          reviewCount: 0,
+          hourlyRate: data.hourly_rate || 0,
+          availability: data.availability || [],
+          experience: data.experience || "New tutor",
+          createdAt: data.created_at,
+          education: (data as any).education,
+          certificates: (data as any).certificates || [],
+          course_topics: (data as any).course_topics || [],
+          teaching_levels: (data as any).teaching_levels || [],
+          intro_video_url: (data as any).intro_video_url,
+          suitable_for: (data as any).suitable_for || [],
+        });
+        setIsNew(isNewTutor(data.created_at));
+      } else {
+        // Fall back to mock data
+        const mockTutor = mockTutors.find((t) => t.id === id);
+        if (mockTutor) {
+          setTutor({
+            ...mockTutor,
+            education: "Bachelor's in Education",
+            certificates: ["Teaching Certification", "Subject Specialist"],
+            course_topics: [],
+            teaching_levels: ["High School", "University"],
+            suitable_for: ["Exam Preparation", "Beginners"],
+          });
+        }
+      }
+      setIsLoading(false);
+    };
+
+    if (id) {
+      fetchTutor();
+    }
+  }, [id]);
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen flex-col">
+        <Navbar />
+        <main className="flex flex-1 items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (!tutor) {
+    return (
+      <div className="flex min-h-screen flex-col">
+        <Navbar />
+        <main className="flex flex-1 items-center justify-center">
+          <div className="text-center">
+            <h1 className="mb-4 text-2xl font-bold text-foreground">Tutor not found</h1>
+            <Button asChild>
+              <Link to="/tutors">Browse all tutors</Link>
+            </Button>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  const embedUrl = tutor.intro_video_url ? getYouTubeEmbedUrl(tutor.intro_video_url) : null;
+
+  return (
+    <div className="flex min-h-screen flex-col">
+      <Navbar />
+
+      <main className="flex-1 bg-muted/30 py-8">
+        <div className="container">
+          {/* Back Button */}
+          <motion.div
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="mb-6"
+          >
+            <Button variant="ghost" size="sm" asChild>
+              <Link to="/tutors">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to tutors
+              </Link>
+            </Button>
+          </motion.div>
+
+          <div className="grid gap-8 lg:grid-cols-3">
+            {/* Main Content */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+              className="lg:col-span-2 space-y-6"
+            >
+              <Card>
+                <CardContent className="p-0">
+                  {/* Header */}
+                  <div className="flex flex-col gap-6 p-6 sm:flex-row sm:items-start">
+                    <div className="relative">
+                      <img
+                        src={tutor.avatar}
+                        alt={tutor.name}
+                        className="h-32 w-32 rounded-2xl object-cover shadow-md"
+                      />
+                      {isNew && (
+                        <Badge variant="new" className="absolute -top-2 -right-2 gap-1">
+                          <Sparkles className="h-3 w-3" />
+                          New
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <div className="mb-2 flex flex-wrap items-center gap-3">
+                        <h1 className="text-2xl font-bold text-foreground">{tutor.name}</h1>
+                        <div className="flex items-center gap-1 rounded-full bg-accent px-3 py-1">
+                          <Star className="h-4 w-4 fill-secondary text-secondary" />
+                          <span className="font-semibold text-foreground">{tutor.rating}</span>
+                          <span className="text-sm text-muted-foreground">
+                            ({tutor.reviewCount} reviews)
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="mb-4 flex flex-wrap items-center gap-4 text-muted-foreground">
+                        <div className="flex items-center gap-1">
+                          <MapPin className="h-4 w-4" />
+                          <span>{tutor.location}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Clock className="h-4 w-4" />
+                          <span>{tutor.experience} experience</span>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-wrap gap-2">
+                        {tutor.subjects.map((subject) => (
+                          <Badge key={subject} variant="subject">
+                            {subject}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* About */}
+                  <div className="border-t p-6">
+                    <h2 className="mb-4 text-lg font-semibold text-foreground">About</h2>
+                    <p className="leading-relaxed text-muted-foreground">{tutor.bio}</p>
+                  </div>
+
+                  {/* Education */}
+                  {tutor.education && (
+                    <div className="border-t p-6">
+                      <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-foreground">
+                        <GraduationCap className="h-5 w-5 text-primary" />
+                        Education
+                      </h2>
+                      <p className="text-muted-foreground">{tutor.education}</p>
+                    </div>
+                  )}
+
+                  {/* Certificates */}
+                  {tutor.certificates && tutor.certificates.length > 0 && (
+                    <div className="border-t p-6">
+                      <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-foreground">
+                        <Award className="h-5 w-5 text-primary" />
+                        Certificates & Qualifications
+                      </h2>
+                      <div className="flex flex-wrap gap-2">
+                        {tutor.certificates.map((cert) => (
+                          <Badge key={cert} variant="secondary" className="gap-1">
+                            <Award className="h-3 w-3" />
+                            {cert}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Course Topics */}
+                  {tutor.course_topics && tutor.course_topics.length > 0 && (
+                    <div className="border-t p-6">
+                      <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-foreground">
+                        <FileText className="h-5 w-5 text-primary" />
+                        Topics I Teach
+                      </h2>
+                      <div className="flex flex-wrap gap-2">
+                        {tutor.course_topics.map((topic) => (
+                          <Badge key={topic} variant="outline">
+                            {topic}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Teaching Levels */}
+                  {tutor.teaching_levels && tutor.teaching_levels.length > 0 && (
+                    <div className="border-t p-6">
+                      <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-foreground">
+                        <Users className="h-5 w-5 text-primary" />
+                        Student Levels
+                      </h2>
+                      <div className="flex flex-wrap gap-2">
+                        {tutor.teaching_levels.map((level) => (
+                          <Badge key={level} variant="level">
+                            {level}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Suitable For */}
+                  {tutor.suitable_for && tutor.suitable_for.length > 0 && (
+                    <div className="border-t p-6">
+                      <h2 className="mb-4 text-lg font-semibold text-foreground">Best Suited For</h2>
+                      <div className="flex flex-wrap gap-2">
+                        {tutor.suitable_for.map((item) => (
+                          <div
+                            key={item}
+                            className="flex items-center gap-2 rounded-lg bg-green-100 dark:bg-green-900/30 px-4 py-2"
+                          >
+                            <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
+                            <span className="text-sm font-medium text-green-800 dark:text-green-300">{item}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Availability */}
+                  {/* Appointment Booking */}
+                  <div className="border-t p-6">
+                    <h2 className="mb-6 text-lg font-semibold text-foreground">Book a Lesson</h2>
+                    <BookingCalendar tutorId={tutor.id} hourlyRate={tutor.hourlyRate} />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Intro Video */}
+              {embedUrl && (
+                <Card>
+                  <CardContent className="p-6">
+                    <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-foreground">
+                      <Video className="h-5 w-5 text-primary" />
+                      Introduction Video
+                    </h2>
+                    <div className="aspect-video rounded-lg overflow-hidden">
+                      <iframe
+                        src={embedUrl}
+                        className="w-full h-full"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        title="Tutor introduction video"
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Reviews Section */}
+              <Card>
+                <CardContent className="p-6">
+                  <Reviews reviews={tutor.reviews || []} tutorId={tutor.id} />
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Sidebar */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.1 }}
+            >
+              <Card className="sticky top-24">
+                <CardContent className="p-6">
+                  <div className="mb-6 text-center">
+                    <span className="text-3xl font-bold text-foreground">${tutor.hourlyRate}</span>
+                    <span className="text-muted-foreground">/hour</span>
+                  </div>
+
+                  <Button size="lg" className="mb-4 w-full">
+                    <Mail className="mr-2 h-4 w-4" />
+                    Contact {tutor.name.split(" ")[0]}
+                  </Button>
+
+                  <div className="space-y-3 text-sm">
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <CheckCircle className="h-4 w-4 text-primary" />
+                      <span>Verified tutor</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <CheckCircle className="h-4 w-4 text-primary" />
+                      <span>Face-to-face lessons</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <CheckCircle className="h-4 w-4 text-primary" />
+                      <span>Responds within 24 hours</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+        </div>
+      </main>
+
+      <Footer />
+    </div>
+  );
+};
+
+export default TutorProfile;

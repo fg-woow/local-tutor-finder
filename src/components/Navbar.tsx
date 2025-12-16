@@ -1,0 +1,112 @@
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { BookOpen, User, LogOut } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
+const Navbar = () => {
+  const { user, profile, role, signOut, isLoading } = useAuth();
+
+  const getInitials = (name: string) => {
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  return (
+    <header className="sticky top-0 z-50 w-full border-b bg-card/80 backdrop-blur-md">
+      <div className="container flex h-16 items-center justify-between">
+        <Link to="/" className="flex items-center gap-2 transition-opacity hover:opacity-80">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
+            <BookOpen className="h-5 w-5 text-primary-foreground" />
+          </div>
+          <span className="text-xl font-bold text-foreground">Learnnear</span>
+        </Link>
+
+        <nav className="hidden items-center gap-6 md:flex">
+          <Link 
+            to="/tutors" 
+            className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+          >
+            Find Tutors
+          </Link>
+          {!user && (
+            <Link 
+              to="/signup" 
+              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Become a Tutor
+            </Link>
+          )}
+          {role === "tutor" && (
+            <Link 
+              to="/profile/edit" 
+              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+            >
+              My Profile
+            </Link>
+          )}
+        </nav>
+
+        <div className="flex items-center gap-3">
+          {isLoading ? (
+            <div className="h-9 w-20 animate-pulse rounded-md bg-muted" />
+          ) : user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+                  <Avatar className="h-9 w-9">
+                    <AvatarImage src={profile?.avatar_url || undefined} alt={profile?.full_name || "User"} />
+                    <AvatarFallback className="bg-primary text-primary-foreground">
+                      {profile?.full_name ? getInitials(profile.full_name) : <User className="h-4 w-4" />}
+                    </AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <div className="flex flex-col space-y-1 p-2">
+                  <p className="text-sm font-medium leading-none">{profile?.full_name || "User"}</p>
+                  <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
+                  <p className="text-xs leading-none text-muted-foreground capitalize">{role}</p>
+                </div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link to="/profile/edit" className="cursor-pointer">
+                    <User className="mr-2 h-4 w-4" />
+                    Edit Profile
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={signOut} className="cursor-pointer text-destructive">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Log out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <>
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/login">Log in</Link>
+              </Button>
+              <Button size="sm" asChild>
+                <Link to="/signup">Sign up</Link>
+              </Button>
+            </>
+          )}
+        </div>
+      </div>
+    </header>
+  );
+};
+
+export default Navbar;
