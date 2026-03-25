@@ -21,7 +21,7 @@ const TutorCard = ({ tutor }: TutorCardProps) => {
   const isNew = isNewTutor(tutor.createdAt);
 
   return (
-    <Card className="group overflow-hidden">
+    <Card className="group overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5">
       <CardContent className="p-0">
         <div className="flex flex-col sm:flex-row">
           {/* Avatar Section */}
@@ -86,7 +86,7 @@ const TutorCard = ({ tutor }: TutorCardProps) => {
                   ${tutor.hourlyRate}/hr
                 </span>
               </div>
-              <Button size="sm" asChild>
+              <Button size="sm" asChild className="transition-transform duration-200 hover:scale-105">
                 <Link to={`/tutors/${tutor.id}`}>View Profile</Link>
               </Button>
             </div>

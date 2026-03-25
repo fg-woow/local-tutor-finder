@@ -51,6 +51,7 @@ export const mockTutors: Tutor[] = [
     hourlyRate: 45,
     availability: ["Weekdays", "Evenings"],
     experience: "8 years",
+    studentLevel: ["High School", "University"],
     reviews: [
       {
         id: "r1",
@@ -80,6 +81,7 @@ export const mockTutors: Tutor[] = [
     hourlyRate: 50,
     availability: ["Weekends", "Mornings"],
     experience: "6 years",
+    studentLevel: ["High School", "University"],
     reviews: [
       {
         id: "r3",
@@ -101,7 +103,24 @@ export const mockTutors: Tutor[] = [
     reviewCount: 156,
     hourlyRate: 40,
     availability: ["Flexible"],
-    experience: "10 years"
+    experience: "10 years",
+    studentLevel: ["Middle School", "High School", "University"],
+    reviews: [
+      {
+        id: "r4",
+        studentName: "Sarah Kim",
+        rating: 5,
+        comment: "Emily transformed my essay writing skills completely. A true mentor.",
+        date: "2024-03-01"
+      },
+      {
+        id: "r5",
+        studentName: "Jake Morrison",
+        rating: 5,
+        comment: "Best English tutor I've ever had. Really engaging lessons.",
+        date: "2024-02-10"
+      }
+    ]
   },
   {
     id: "4",
@@ -114,7 +133,17 @@ export const mockTutors: Tutor[] = [
     reviewCount: 94,
     hourlyRate: 65,
     availability: ["Evenings", "Weekends"],
-    experience: "5 years"
+    experience: "5 years",
+    studentLevel: ["High School", "University", "Adult Learner"],
+    reviews: [
+      {
+        id: "r6",
+        studentName: "Daniel Park",
+        rating: 5,
+        comment: "Marcus helped me land my first software engineering job. His mentorship was invaluable.",
+        date: "2024-01-15"
+      }
+    ]
   },
   {
     id: "5",
@@ -127,7 +156,17 @@ export const mockTutors: Tutor[] = [
     reviewCount: 72,
     hourlyRate: 35,
     availability: ["Weekdays", "Mornings"],
-    experience: "4 years"
+    experience: "4 years",
+    studentLevel: ["High School", "University", "Adult Learner"],
+    reviews: [
+      {
+        id: "r7",
+        studentName: "Emma Watson",
+        rating: 4,
+        comment: "Lisa's cultural approach to language learning is unique and effective.",
+        date: "2024-02-20"
+      }
+    ]
   },
   {
     id: "6",
@@ -140,8 +179,180 @@ export const mockTutors: Tutor[] = [
     reviewCount: 63,
     hourlyRate: 42,
     availability: ["Afternoons", "Weekends"],
-    experience: "12 years"
-  }
+    experience: "12 years",
+    studentLevel: ["Middle School", "High School", "University"],
+    reviews: [
+      {
+        id: "r8",
+        studentName: "Chris Adams",
+        rating: 5,
+        comment: "Professor Wilson makes history feel alive. Amazing storyteller.",
+        date: "2024-03-05"
+      }
+    ]
+  },
+  {
+    id: "7",
+    name: "Aisha Patel",
+    avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400",
+    subjects: ["Mathematics", "Computer Science"],
+    location: "Boston, MA",
+    bio: "MIT graduate with a passion for teaching STEM. I specialize in preparing students for AP exams and college-level math courses.",
+    rating: 4.9,
+    reviewCount: 112,
+    hourlyRate: 55,
+    availability: ["Weekdays", "Evenings"],
+    experience: "7 years",
+    studentLevel: ["High School", "University"],
+    createdAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
+    reviews: [
+      {
+        id: "r9",
+        studentName: "Lily Chen",
+        rating: 5,
+        comment: "Aisha helped me ace my AP Calculus exam. Incredible tutor!",
+        date: "2024-03-12"
+      },
+      {
+        id: "r10",
+        studentName: "Ryan Brooks",
+        rating: 5,
+        comment: "Her teaching method is so clear and structured. Highly recommend.",
+        date: "2024-02-28"
+      }
+    ]
+  },
+  {
+    id: "8",
+    name: "Carlos Mendez",
+    avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400",
+    subjects: ["Spanish", "French"],
+    location: "Los Angeles, CA",
+    bio: "Trilingual language specialist from Barcelona. I use immersive conversation-based teaching methods to get you fluent fast.",
+    rating: 4.6,
+    reviewCount: 48,
+    hourlyRate: 38,
+    availability: ["Mornings", "Afternoons", "Weekdays"],
+    experience: "3 years",
+    studentLevel: ["Middle School", "High School", "Adult Learner"],
+    reviews: [
+      {
+        id: "r11",
+        studentName: "Olivia Green",
+        rating: 5,
+        comment: "Carlos is an incredible Spanish tutor. I went from beginner to conversational in 4 months.",
+        date: "2024-01-25"
+      }
+    ]
+  },
+  {
+    id: "9",
+    name: "Dr. Rachel Kim",
+    avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400",
+    subjects: ["Biology", "Chemistry"],
+    location: "Seattle, WA",
+    bio: "Medical doctor and biology professor. I turn complex scientific concepts into intuitive, memorable lessons with clinical examples.",
+    rating: 5.0,
+    reviewCount: 201,
+    hourlyRate: 80,
+    availability: ["Weekends", "Evenings"],
+    experience: "15 years",
+    studentLevel: ["University", "Adult Learner"],
+    reviews: [
+      {
+        id: "r12",
+        studentName: "Jessica Liu",
+        rating: 5,
+        comment: "Dr. Kim's biology lessons are phenomenal. She really knows how to explain complex topics.",
+        date: "2024-03-08"
+      },
+      {
+        id: "r13",
+        studentName: "Mark Thompson",
+        rating: 5,
+        comment: "Best tutor I've ever worked with. Worth every penny.",
+        date: "2024-02-22"
+      }
+    ]
+  },
+  {
+    id: "10",
+    name: "Oliver Thompson",
+    avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400",
+    subjects: ["Music", "Art"],
+    location: "Chicago, IL",
+    bio: "Professional musician and visual artist. I nurture creative expression through personalized lessons in piano, guitar, and mixed media art.",
+    rating: 4.5,
+    reviewCount: 34,
+    hourlyRate: 30,
+    availability: ["Flexible"],
+    experience: "9 years",
+    studentLevel: ["Primary School", "Middle School", "High School", "Adult Learner"],
+    createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+    reviews: [
+      {
+        id: "r14",
+        studentName: "Amy Foster",
+        rating: 5,
+        comment: "Oliver is an amazing music teacher. My daughter loves her piano lessons!",
+        date: "2024-03-11"
+      }
+    ]
+  },
+  {
+    id: "11",
+    name: "Natalie Foster",
+    avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400",
+    subjects: ["Physics", "Mathematics"],
+    location: "Manhattan, NY",
+    bio: "PhD in Theoretical Physics from Columbia. I transform abstract physics into visual, intuitive concepts using simulations and real-world demos.",
+    rating: 4.8,
+    reviewCount: 78,
+    hourlyRate: 70,
+    availability: ["Weekdays", "Mornings"],
+    experience: "6 years",
+    studentLevel: ["High School", "University"],
+    reviews: [
+      {
+        id: "r15",
+        studentName: "Victor Nguyen",
+        rating: 5,
+        comment: "Natalie makes physics fascinating. She uses visuals that really help understanding.",
+        date: "2024-03-06"
+      }
+    ]
+  },
+  {
+    id: "12",
+    name: "Tyler Brooks",
+    avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400",
+    subjects: ["Programming", "Computer Science"],
+    location: "San Francisco, CA",
+    bio: "Full-stack developer and coding bootcamp instructor. I teach Python, JavaScript, React, and help beginners build their first apps from scratch.",
+    rating: 4.7,
+    reviewCount: 56,
+    hourlyRate: 60,
+    availability: ["Evenings", "Weekends"],
+    experience: "4 years",
+    studentLevel: ["University", "Adult Learner"],
+    createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+    reviews: [
+      {
+        id: "r16",
+        studentName: "Hannah Lee",
+        rating: 5,
+        comment: "Tyler taught me React from zero. I built my portfolio site in 3 weeks!",
+        date: "2024-03-09"
+      },
+      {
+        id: "r17",
+        studentName: "Sam Rodriguez",
+        rating: 4,
+        comment: "Great coding tutor. Very patient with beginners.",
+        date: "2024-02-18"
+      }
+    ]
+  },
 ];
 
 export const subjects = [

@@ -1,6 +1,7 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { BookOpen, User, LogOut } from "lucide-react";
+import { BookOpen, User, LogOut, Menu, X } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import {
   DropdownMenu,
@@ -10,9 +11,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 const Navbar = () => {
   const { user, profile, role, signOut, isLoading } = useAuth();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const getInitials = (name: string) => {
     return name
@@ -22,6 +31,36 @@ const Navbar = () => {
       .toUpperCase()
       .slice(0, 2);
   };
+
+  const NavLinks = ({ onClick }: { onClick?: () => void }) => (
+    <>
+      <Link
+        to="/tutors"
+        onClick={onClick}
+        className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+      >
+        Find Tutors
+      </Link>
+      {!user && (
+        <Link
+          to="/signup"
+          onClick={onClick}
+          className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+        >
+          Become a Tutor
+        </Link>
+      )}
+      {role === "tutor" && (
+        <Link
+          to="/profile/edit"
+          onClick={onClick}
+          className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+        >
+          My Profile
+        </Link>
+      )}
+    </>
+  );
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-card/80 backdrop-blur-md">
@@ -33,29 +72,9 @@ const Navbar = () => {
           <span className="text-xl font-bold text-foreground">Learnnear</span>
         </Link>
 
+        {/* Desktop Nav */}
         <nav className="hidden items-center gap-6 md:flex">
-          <Link 
-            to="/tutors" 
-            className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-          >
-            Find Tutors
-          </Link>
-          {!user && (
-            <Link 
-              to="/signup" 
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-            >
-              Become a Tutor
-            </Link>
-          )}
-          {role === "tutor" && (
-            <Link 
-              to="/profile/edit" 
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-            >
-              My Profile
-            </Link>
-          )}
+          <NavLinks />
         </nav>
 
         <div className="flex items-center gap-3">
@@ -95,14 +114,74 @@ const Navbar = () => {
             </DropdownMenu>
           ) : (
             <>
-              <Button variant="ghost" size="sm" asChild>
+              <Button variant="ghost" size="sm" asChild className="hidden md:inline-flex">
                 <Link to="/login">Log in</Link>
               </Button>
-              <Button size="sm" asChild>
+              <Button size="sm" asChild className="hidden md:inline-flex">
                 <Link to="/signup">Sign up</Link>
               </Button>
             </>
           )}
+
+          {/* Mobile Hamburger */}
+          <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="sm" className="md:hidden" aria-label="Open menu">
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-72">
+              <SheetHeader>
+                <SheetTitle className="flex items-center gap-2">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+                    <BookOpen className="h-4 w-4 text-primary-foreground" />
+                  </div>
+                  Learnnear
+                </SheetTitle>
+              </SheetHeader>
+              <nav className="mt-8 flex flex-col gap-4">
+                <NavLinks onClick={() => setMobileOpen(false)} />
+                {!user && (
+                  <>
+                    <hr className="my-2" />
+                    <Link
+                      to="/login"
+                      onClick={() => setMobileOpen(false)}
+                      className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                    >
+                      Log in
+                    </Link>
+                    <Button size="sm" asChild>
+                      <Link to="/signup" onClick={() => setMobileOpen(false)}>Sign up</Link>
+                    </Button>
+                  </>
+                )}
+                {user && (
+                  <>
+                    <hr className="my-2" />
+                    <Link
+                      to="/profile/edit"
+                      onClick={() => setMobileOpen(false)}
+                      className="flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                    >
+                      <User className="h-4 w-4" />
+                      Edit Profile
+                    </Link>
+                    <button
+                      onClick={() => {
+                        signOut();
+                        setMobileOpen(false);
+                      }}
+                      className="flex items-center gap-2 text-sm font-medium text-destructive transition-colors hover:text-destructive/80"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Log out
+                    </button>
+                  </>
+                )}
+              </nav>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </header>

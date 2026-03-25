@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
-import { BookOpen, Mail, Lock, User, GraduationCap, Users } from "lucide-react";
+import { BookOpen, Mail, Lock, User, GraduationCap, Users, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { z } from "zod";
@@ -20,6 +22,23 @@ const signupSchema = z.object({
   path: ["confirmPassword"],
 });
 
+const getPasswordStrength = (password: string): { score: number; label: string; color: string } => {
+  if (!password) return { score: 0, label: "", color: "" };
+
+  let score = 0;
+  if (password.length >= 6) score++;
+  if (password.length >= 10) score++;
+  if (/[A-Z]/.test(password)) score++;
+  if (/[0-9]/.test(password)) score++;
+  if (/[^A-Za-z0-9]/.test(password)) score++;
+
+  if (score <= 1) return { score: 1, label: "Weak", color: "bg-red-500" };
+  if (score === 2) return { score: 2, label: "Fair", color: "bg-orange-500" };
+  if (score === 3) return { score: 3, label: "Good", color: "bg-yellow-500" };
+  if (score === 4) return { score: 4, label: "Strong", color: "bg-emerald-500" };
+  return { score: 5, label: "Very Strong", color: "bg-green-600" };
+};
+
 const Signup = () => {
   const [formData, setFormData] = useState({
     name: "",
@@ -28,11 +47,14 @@ const Signup = () => {
     confirmPassword: "",
     role: "student" as "student" | "tutor",
   });
+  const [acceptTerms, setAcceptTerms] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
   const { signUp, user } = useAuth();
+
+  const passwordStrength = useMemo(() => getPasswordStrength(formData.password), [formData.password]);
 
   // Redirect if already logged in
   if (user) {
@@ -43,6 +65,11 @@ const Signup = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
+
+    if (!acceptTerms) {
+      setErrors({ terms: "You must accept the terms and conditions" });
+      return;
+    }
 
     const validation = signupSchema.safeParse(formData);
     if (!validation.success) {
@@ -135,7 +162,7 @@ const Signup = () => {
                     onClick={() => setFormData({ ...formData, role: "student" })}
                     className={`flex flex-col items-center gap-2 rounded-lg border-2 p-4 transition-all ${
                       formData.role === "student"
-                        ? "border-primary bg-primary/5"
+                        ? "border-primary bg-primary/5 shadow-sm"
                         : "border-border hover:border-primary/50"
                     }`}
                   >
@@ -149,7 +176,7 @@ const Signup = () => {
                     onClick={() => setFormData({ ...formData, role: "tutor" })}
                     className={`flex flex-col items-center gap-2 rounded-lg border-2 p-4 transition-all ${
                       formData.role === "tutor"
-                        ? "border-primary bg-primary/5"
+                        ? "border-primary bg-primary/5 shadow-sm"
                         : "border-border hover:border-primary/50"
                     }`}
                   >
@@ -224,6 +251,31 @@ const Signup = () => {
                 {errors.password && (
                   <p className="mt-1 text-sm text-destructive">{errors.password}</p>
                 )}
+                {/* Password Strength Indicator */}
+                {formData.password && (
+                  <div className="mt-2">
+                    <div className="flex gap-1">
+                      {[1, 2, 3, 4, 5].map((level) => (
+                        <div
+                          key={level}
+                          className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
+                            level <= passwordStrength.score
+                              ? passwordStrength.color
+                              : "bg-muted"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <p className={`mt-1 text-xs font-medium ${
+                      passwordStrength.score <= 1 ? "text-red-500" :
+                      passwordStrength.score === 2 ? "text-orange-500" :
+                      passwordStrength.score === 3 ? "text-yellow-600" :
+                      "text-green-600"
+                    }`}>
+                      {passwordStrength.label}
+                    </p>
+                  </div>
+                )}
               </div>
 
               <div>
@@ -246,6 +298,44 @@ const Signup = () => {
                 {errors.confirmPassword && (
                   <p className="mt-1 text-sm text-destructive">{errors.confirmPassword}</p>
                 )}
+              </div>
+
+              {/* Terms & Conditions */}
+              <div className="flex items-start space-x-2">
+                <Checkbox
+                  id="accept-terms"
+                  checked={acceptTerms}
+                  onCheckedChange={(checked) => {
+                    setAcceptTerms(checked as boolean);
+                    if (errors.terms) {
+                      setErrors({ ...errors, terms: "" });
+                    }
+                  }}
+                  className="mt-0.5"
+                />
+                <div>
+                  <Label htmlFor="accept-terms" className="text-sm cursor-pointer text-muted-foreground leading-snug">
+                    I agree to the{" "}
+                    <button
+                      type="button"
+                      className="font-medium text-primary hover:underline"
+                      onClick={() => {}}
+                    >
+                      Terms of Service
+                    </button>{" "}
+                    and{" "}
+                    <button
+                      type="button"
+                      className="font-medium text-primary hover:underline"
+                      onClick={() => {}}
+                    >
+                      Privacy Policy
+                    </button>
+                  </Label>
+                  {errors.terms && (
+                    <p className="mt-1 text-sm text-destructive">{errors.terms}</p>
+                  )}
+                </div>
               </div>
 
               <Button type="submit" size="lg" className="w-full" disabled={isLoading}>

@@ -132,7 +132,7 @@ const Index = () => {
                 <motion.div
                   key={step.title}
                   variants={fadeInUp}
-                  className="group relative rounded-2xl border bg-card p-8 text-center transition-shadow hover:shadow-lg"
+                  className="group relative rounded-2xl border bg-card p-8 text-center hover-lift hover:shadow-glow"
                 >
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 py-1 text-sm font-bold text-primary-foreground">
                     {index + 1}

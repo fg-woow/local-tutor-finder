@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
-import { BookOpen, Mail, Lock } from "lucide-react";
+import { BookOpen, Mail, Lock, Chrome } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { z } from "zod";
@@ -19,6 +21,7 @@ const Login = () => {
     email: "",
     password: "",
   });
+  const [rememberMe, setRememberMe] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -152,10 +155,60 @@ const Login = () => {
                 )}
               </div>
 
+              {/* Remember Me & Forgot Password */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="remember-me"
+                    checked={rememberMe}
+                    onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+                  />
+                  <Label htmlFor="remember-me" className="text-sm cursor-pointer text-muted-foreground">
+                    Remember me
+                  </Label>
+                </div>
+                <button
+                  type="button"
+                  className="text-sm font-medium text-primary hover:underline"
+                  onClick={() =>
+                    toast({
+                      title: "Coming soon",
+                      description: "Password reset functionality will be available soon.",
+                    })
+                  }
+                >
+                  Forgot password?
+                </button>
+              </div>
+
               <Button type="submit" size="lg" className="w-full" disabled={isLoading}>
                 {isLoading ? "Logging in..." : "Log in"}
               </Button>
             </form>
+
+            {/* Divider */}
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-card px-2 text-muted-foreground">or continue with</span>
+              </div>
+            </div>
+
+            {/* Social Login Placeholder */}
+            <Button
+              variant="outline"
+              className="w-full"
+              disabled
+              onClick={() => {}}
+            >
+              <Chrome className="mr-2 h-4 w-4" />
+              Continue with Google
+            </Button>
+            <p className="mt-2 text-center text-xs text-muted-foreground">
+              Social login coming soon
+            </p>
 
             <p className="mt-6 text-center text-sm text-muted-foreground">
               Don't have an account?{" "}

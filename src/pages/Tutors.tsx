@@ -1,10 +1,11 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
-import { motion } from "framer-motion";
-import { Search, MapPin, SlidersHorizontal, X, ArrowUpDown, Star, DollarSign } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Search, MapPin, SlidersHorizontal, X, ArrowUpDown, Star, DollarSign, MessageSquare } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import TutorCard from "@/components/TutorCard";
+import TutorCardSkeleton from "@/components/TutorCardSkeleton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -41,7 +42,7 @@ interface TutorProfile {
   created_at: string;
 }
 
-type SortOption = "rating" | "price-low" | "price-high" | "newest" | "location";
+type SortOption = "rating" | "price-low" | "price-high" | "newest" | "location" | "most-reviewed";
 
 const Tutors = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -54,6 +55,7 @@ const Tutors = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [dbTutors, setDbTutors] = useState<TutorProfile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isFiltering, setIsFiltering] = useState(false);
 
   useEffect(() => {
     const fetchTutors = async () => {
@@ -72,6 +74,13 @@ const Tutors = () => {
     };
 
     fetchTutors();
+  }, []);
+
+  // Simulate loading delay when filters change
+  const triggerFilterLoading = useCallback(() => {
+    setIsFiltering(true);
+    const timer = setTimeout(() => setIsFiltering(false), 600);
+    return () => clearTimeout(timer);
   }, []);
 
   // Combine mock tutors with database tutors
@@ -94,8 +103,8 @@ const Tutors = () => {
 
     const mockWithDates = mockTutors.map((t) => ({
       ...t,
-      createdAt: undefined,
-      studentLevel: ["High School", "University"] as string[],
+      createdAt: t.createdAt || undefined,
+      studentLevel: t.studentLevel || ["High School", "University"] as string[],
     }));
 
     return [...dbTutorCards, ...mockWithDates];
@@ -158,19 +167,23 @@ const Tutors = () => {
           return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
         });
         break;
+      case "most-reviewed":
+        result.sort((a, b) => b.reviewCount - a.reviewCount);
+        break;
       case "location":
         result.sort((a, b) => a.location.localeCompare(b.location));
         break;
     }
 
     return result;
-  }, [allTutors, subjectFilter, locationFilter, sortBy, selectedPriceRange, selectedStudentLevels]);
+  }, [allTutors, subjectFilter, locationFilter, sortBy, selectedPriceRange, selectedStudentLevels, selectedAvailability]);
 
   const handleSearch = () => {
     const params = new URLSearchParams();
     if (subjectFilter) params.set("subject", subjectFilter);
     if (locationFilter) params.set("location", locationFilter);
     setSearchParams(params);
+    triggerFilterLoading();
   };
 
   const clearFilters = () => {
@@ -180,26 +193,34 @@ const Tutors = () => {
     setSelectedStudentLevels([]);
     setSelectedAvailability([]);
     setSearchParams({});
+    triggerFilterLoading();
   };
 
   const togglePriceRange = (range: string) => {
     setSelectedPriceRange((prev) =>
       prev.includes(range) ? prev.filter((r) => r !== range) : [...prev, range]
     );
+    triggerFilterLoading();
   };
 
   const toggleStudentLevel = (level: string) => {
     setSelectedStudentLevels((prev) =>
       prev.includes(level) ? prev.filter((l) => l !== level) : [...prev, level]
     );
+    triggerFilterLoading();
   };
 
   const toggleAvailability = (option: string) => {
     setSelectedAvailability((prev) =>
       prev.includes(option) ? prev.filter((o) => o !== option) : [...prev, option]
     );
+    triggerFilterLoading();
   };
 
+  const handleSortChange = (val: string) => {
+    setSortBy(val as SortOption);
+    triggerFilterLoading();
+  };
 
   const hasFilters = subjectFilter || locationFilter || selectedPriceRange.length > 0 || selectedStudentLevels.length > 0 || selectedAvailability.length > 0;
 
@@ -276,6 +297,8 @@ const Tutors = () => {
       )}
     </div>
   );
+
+  const showSkeletons = isLoading || isFiltering;
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -401,9 +424,12 @@ const Tutors = () => {
               {subjects.slice(0, 8).map((subject) => (
                 <button
                   key={subject}
-                  onClick={() => setSubjectFilter(subject)}
-                  className={`rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${subjectFilter === subject
-                    ? "border-primary bg-primary text-primary-foreground"
+                  onClick={() => {
+                    setSubjectFilter(subject);
+                    triggerFilterLoading();
+                  }}
+                  className={`rounded-full border px-4 py-1.5 text-sm font-medium transition-all duration-200 hover:shadow-md hover:scale-105 ${subjectFilter === subject
+                    ? "border-primary bg-primary text-primary-foreground shadow-md"
                     : "border-border bg-card text-foreground hover:border-primary hover:text-primary"
                     }`}
                 >
@@ -432,8 +458,8 @@ const Tutors = () => {
               {/* Sort Dropdown */}
               <div className="flex items-center gap-2">
                 <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
-                <Select value={sortBy} onValueChange={(val) => setSortBy(val as SortOption)}>
-                  <SelectTrigger className="w-[180px]">
+                <Select value={sortBy} onValueChange={handleSortChange}>
+                  <SelectTrigger className="w-[200px]">
                     <SelectValue placeholder="Sort by" />
                   </SelectTrigger>
                   <SelectContent>
@@ -443,8 +469,24 @@ const Tutors = () => {
                         Highest Rated
                       </div>
                     </SelectItem>
-                    <SelectItem value="price-low">Price: Low to High</SelectItem>
-                    <SelectItem value="price-high">Price: High to Low</SelectItem>
+                    <SelectItem value="price-low">
+                      <div className="flex items-center gap-2">
+                        <DollarSign className="h-4 w-4" />
+                        Price: Low to High
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="price-high">
+                      <div className="flex items-center gap-2">
+                        <DollarSign className="h-4 w-4" />
+                        Price: High to Low
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="most-reviewed">
+                      <div className="flex items-center gap-2">
+                        <MessageSquare className="h-4 w-4" />
+                        Most Reviewed
+                      </div>
+                    </SelectItem>
                     <SelectItem value="newest">Newest First</SelectItem>
                     <SelectItem value="location">
                       <div className="flex items-center gap-2">
@@ -457,9 +499,35 @@ const Tutors = () => {
               </div>
             </div>
 
-            {isLoading ? (
-              <div className="flex justify-center py-16">
-                <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+            {/* Loading Progress Bar */}
+            <AnimatePresence>
+              {isFiltering && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="mb-6"
+                >
+                  <div className="h-1 w-full overflow-hidden rounded-full bg-muted">
+                    <motion.div
+                      className="h-full bg-primary"
+                      initial={{ width: "0%" }}
+                      animate={{ width: "100%" }}
+                      transition={{ duration: 0.6, ease: "easeInOut" }}
+                    />
+                  </div>
+                  <p className="mt-2 text-center text-sm text-muted-foreground animate-pulse">
+                    Filtering results...
+                  </p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {showSkeletons ? (
+              <div className="grid gap-6 md:grid-cols-2">
+                {[...Array(4)].map((_, i) => (
+                  <TutorCardSkeleton key={i} />
+                ))}
               </div>
             ) : filteredAndSortedTutors.length > 0 ? (
               <motion.div
@@ -470,7 +538,7 @@ const Tutors = () => {
                     transition: { staggerChildren: 0.1 },
                   },
                 }}
-                className="grid gap-6"
+                className="grid gap-6 md:grid-cols-2"
               >
                 {filteredAndSortedTutors.map((tutor) => (
                   <motion.div key={tutor.id} variants={fadeInUp}>
@@ -480,18 +548,39 @@ const Tutors = () => {
               </motion.div>
             ) : (
               <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="rounded-2xl border bg-card py-16 text-center"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="rounded-2xl border bg-card px-6 py-16 text-center shadow-sm"
               >
-                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
-                  <Search className="h-8 w-8 text-muted-foreground" />
-                </div>
-                <h3 className="mb-2 text-xl font-semibold text-foreground">No tutors found</h3>
-                <p className="mb-6 text-muted-foreground">
-                  Try adjusting your search filters or browse all tutors
+                <motion.div
+                  initial={{ scale: 0.8 }}
+                  animate={{ scale: 1 }}
+                  transition={{ duration: 0.4, delay: 0.1 }}
+                  className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-primary/10 to-secondary/10"
+                >
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-card shadow-md">
+                    <Search className="h-8 w-8 text-primary" />
+                  </div>
+                </motion.div>
+                <h3 className="mb-3 text-2xl font-bold text-foreground">No tutors match your search</h3>
+                <p className="mx-auto mb-2 max-w-md text-muted-foreground">
+                  We couldn't find any tutors matching your current filters. Here are some things you can try:
                 </p>
-                <Button onClick={clearFilters}>Clear filters</Button>
+                <ul className="mx-auto mb-8 max-w-sm text-sm text-muted-foreground space-y-1">
+                  <li>• Broaden your subject or location search</li>
+                  <li>• Remove some filters to see more results</li>
+                  <li>• Check for typos in your search terms</li>
+                </ul>
+                <div className="flex flex-wrap justify-center gap-3">
+                  <Button onClick={clearFilters} size="lg">
+                    <X className="mr-2 h-4 w-4" />
+                    Clear All Filters
+                  </Button>
+                  <Button variant="outline" size="lg" onClick={() => { clearFilters(); window.scrollTo({ top: 0, behavior: "smooth" }); }}>
+                    Browse All Tutors
+                  </Button>
+                </div>
               </motion.div>
             )}
           </div>
