@@ -58,7 +58,7 @@ const Signup = () => {
 
   // Redirect if already logged in
   if (user) {
-    navigate("/tutors");
+    navigate("/profile");
     return null;
   }
 
@@ -114,7 +114,7 @@ const Signup = () => {
         ? "Welcome to Learnnear! Complete your tutor profile to start teaching."
         : "Welcome to Learnnear! Start exploring tutors.",
     });
-    navigate(formData.role === "tutor" ? "/profile/edit" : "/tutors");
+    navigate("/profile");
     setIsLoading(false);
   };
 

@@ -63,12 +63,12 @@ const ProfileEdit = () => {
         hourly_rate: profile.hourly_rate?.toString() || "",
         experience: profile.experience || "",
         availability: profile.availability || [],
-        education: (profile as any).education || "",
-        certificates: (profile as any).certificates || [],
-        course_topics: (profile as any).course_topics || [],
-        teaching_levels: (profile as any).teaching_levels || [],
-        intro_video_url: (profile as any).intro_video_url || "",
-        suitable_for: (profile as any).suitable_for || [],
+        education: profile.education || "",
+        certificates: profile.certificates || [],
+        course_topics: profile.course_topics || [],
+        teaching_levels: profile.teaching_levels || [],
+        intro_video_url: profile.intro_video_url || "",
+        suitable_for: profile.suitable_for || [],
       });
     }
   }, [profile]);

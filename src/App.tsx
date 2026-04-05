@@ -10,6 +10,7 @@ import TutorProfile from "./pages/TutorProfile";
 import BecomeTutor from "./pages/BecomeTutor";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import Profile from "./pages/Profile";
 import ProfileEdit from "./pages/ProfileEdit";
 import NotFound from "./pages/NotFound";
 
@@ -29,6 +30,7 @@ const App = () => (
             <Route path="/become-tutor" element={<BecomeTutor />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/profile" element={<Profile />} />
             <Route path="/profile/edit" element={<ProfileEdit />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

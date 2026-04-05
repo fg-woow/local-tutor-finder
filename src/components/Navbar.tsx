@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { BookOpen, User, LogOut, Menu, X } from "lucide-react";
+import { BookOpen, User, LogOut, Menu, X, Edit } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import {
   DropdownMenu,
@@ -50,9 +50,9 @@ const Navbar = () => {
           Become a Tutor
         </Link>
       )}
-      {role === "tutor" && (
+      {user && (
         <Link
-          to="/profile/edit"
+          to="/profile"
           onClick={onClick}
           className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
         >
@@ -100,8 +100,14 @@ const Navbar = () => {
                 </div>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <Link to="/profile/edit" className="cursor-pointer">
+                  <Link to="/profile" className="cursor-pointer">
                     <User className="mr-2 h-4 w-4" />
+                    View Profile
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/profile/edit" className="cursor-pointer">
+                    <Edit className="mr-2 h-4 w-4" />
                     Edit Profile
                   </Link>
                 </DropdownMenuItem>

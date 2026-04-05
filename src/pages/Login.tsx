@@ -30,7 +30,7 @@ const Login = () => {
 
   // Redirect if already logged in
   if (user) {
-    navigate("/tutors");
+    navigate("/profile");
     return null;
   }
 
@@ -74,7 +74,7 @@ const Login = () => {
       title: "Welcome back!",
       description: "You've successfully logged in.",
     });
-    navigate("/tutors");
+    navigate("/profile");
     setIsLoading(false);
   };
 
