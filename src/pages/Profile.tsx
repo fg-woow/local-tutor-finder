@@ -24,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth, UserProfile } from "@/hooks/useAuth";
+import SessionHistory from "@/components/SessionHistory";
 
 const isNewUser = (createdAt?: string): boolean => {
   if (!createdAt) return false;
@@ -188,6 +189,12 @@ const StudentProfile = ({ profile }: { profile: UserProfile }) => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Session History */}
+      <div>
+        <h2 className="text-xl font-bold mb-4 text-foreground">Session History</h2>
+        <SessionHistory />
+      </div>
     </div>
   );
 };
@@ -511,6 +518,12 @@ const TutorProfileView = ({ profile }: { profile: UserProfile }) => {
             </div>
           </CardContent>
         </Card>
+      </div>
+
+      {/* Session History */}
+      <div className="mt-8">
+        <h2 className="text-xl font-bold mb-4 text-foreground">Session History</h2>
+        <SessionHistory />
       </div>
     </div>
   );
