@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -6,6 +6,8 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { Clock, Calendar as CalendarIcon, CheckCircle2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/hooks/useAuth";
+import { createBooking, getTutorBookingsForDate } from "@/lib/api";
 
 interface BookingCalendarProps {
     tutorId: string;
@@ -24,32 +26,74 @@ const TIME_SLOTS = [
 ];
 
 const BookingCalendar = ({ tutorId, hourlyRate }: BookingCalendarProps) => {
+    const { user } = useAuth();
     const [date, setDate] = useState<Date | undefined>(new Date());
     const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
     const [isBooking, setIsBooking] = useState(false);
+    const [bookedSlots, setBookedSlots] = useState<string[]>([]);
 
-    // Mock function to check if a slot is unavailable (randomly)
-    const isSlotUnavailable = (time: string, selectedDate: Date) => {
-        // Just for demo purposes, make same-day slots partially unavailable
-        if (selectedDate.toDateString() === new Date().toDateString()) {
-            return ["09:00 AM", "10:00 AM"].includes(time);
-        }
-        return false;
+    // Fetch booked slots when date changes
+    useEffect(() => {
+        if (!date) return;
+
+        const fetchBookedSlots = async () => {
+            const dateStr = format(date, "yyyy-MM-dd");
+            const { data } = await getTutorBookingsForDate(tutorId, dateStr);
+            setBookedSlots(data.map((b) => b.time_slot));
+        };
+
+        fetchBookedSlots();
+    }, [date, tutorId]);
+
+    const isSlotUnavailable = (time: string) => {
+        return bookedSlots.includes(time);
     };
 
-    const handleBook = () => {
+    const handleBook = async () => {
         if (!date || !selectedSlot) return;
+
+        if (!user) {
+            toast.error("Please log in to book a lesson", {
+                description: "You need an account to book tutoring sessions.",
+                action: {
+                    label: "Log in",
+                    onClick: () => window.location.href = "/login",
+                },
+            });
+            return;
+        }
+
+        if (user.id === tutorId) {
+            toast.error("You can't book a lesson with yourself!");
+            return;
+        }
 
         setIsBooking(true);
 
-        // Simulate API call
-        setTimeout(() => {
-            setIsBooking(false);
-            toast.success("Booking confirmed!", {
-                description: `Your session is scheduled for ${format(date, "MMMM do")} at ${selectedSlot}.`,
+        const { data, error } = await createBooking({
+            tutor_id: tutorId,
+            student_id: user.id,
+            booking_date: format(date, "yyyy-MM-dd"),
+            time_slot: selectedSlot,
+            hourly_rate: hourlyRate,
+        });
+
+        setIsBooking(false);
+
+        if (error) {
+            toast.error("Failed to book lesson", {
+                description: error.message,
             });
-            setSelectedSlot(null);
-        }, 1500);
+            return;
+        }
+
+        toast.success("Booking confirmed!", {
+            description: `Your session is scheduled for ${format(date, "MMMM do")} at ${selectedSlot}.`,
+        });
+
+        // Add the newly booked slot to the list
+        setBookedSlots((prev) => [...prev, selectedSlot]);
+        setSelectedSlot(null);
     };
 
     return (
@@ -60,7 +104,10 @@ const BookingCalendar = ({ tutorId, hourlyRate }: BookingCalendarProps) => {
                     <Calendar
                         mode="single"
                         selected={date}
-                        onSelect={setDate}
+                        onSelect={(d) => {
+                            setDate(d);
+                            setSelectedSlot(null);
+                        }}
                         className="rounded-md border shadow-sm"
                         disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
                     />
@@ -81,7 +128,7 @@ const BookingCalendar = ({ tutorId, hourlyRate }: BookingCalendarProps) => {
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                         {date ? (
                             TIME_SLOTS.map((time) => {
-                                const disabled = isSlotUnavailable(time, date);
+                                const disabled = isSlotUnavailable(time);
                                 return (
                                     <Button
                                         key={time}
@@ -92,6 +139,9 @@ const BookingCalendar = ({ tutorId, hourlyRate }: BookingCalendarProps) => {
                                     >
                                         <Clock className="mr-2 h-4 w-4" />
                                         {time}
+                                        {disabled && (
+                                            <span className="ml-auto text-xs text-muted-foreground">Booked</span>
+                                        )}
                                     </Button>
                                 );
                             })

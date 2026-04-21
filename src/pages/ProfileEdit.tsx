@@ -45,6 +45,7 @@ const ProfileEdit = () => {
     teaching_levels: [] as string[],
     intro_video_url: "",
     suitable_for: [] as string[],
+    offers_trial: false,
   });
 
   useEffect(() => {
@@ -69,6 +70,7 @@ const ProfileEdit = () => {
         teaching_levels: profile.teaching_levels || [],
         intro_video_url: profile.intro_video_url || "",
         suitable_for: profile.suitable_for || [],
+        offers_trial: profile.offers_trial || false,
       });
     }
   }, [profile]);
@@ -91,6 +93,7 @@ const ProfileEdit = () => {
       teaching_levels: formData.teaching_levels,
       intro_video_url: formData.intro_video_url || null,
       suitable_for: formData.suitable_for,
+      offers_trial: formData.offers_trial,
     };
 
     const { error } = await updateProfile(updates);
@@ -113,6 +116,10 @@ const ProfileEdit = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.checked });
   };
 
   const toggleSubject = (subject: string) => {
@@ -494,6 +501,28 @@ const ProfileEdit = () => {
                               {time}
                             </button>
                           ))}
+                        </div>
+                      </div>
+
+                      {/* Free Trial */}
+                      <div className="space-y-4 rounded-lg border p-4 bg-muted/20 mt-6">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <label className="text-sm font-medium text-foreground">Offer Free Trial</label>
+                            <p className="text-xs text-muted-foreground">
+                              Allow students to book a short, free trial lesson to see if you're a good fit.
+                            </p>
+                          </div>
+                          <label className="relative inline-flex cursor-pointer items-center">
+                            <input
+                              type="checkbox"
+                              name="offers_trial"
+                              className="peer sr-only"
+                              checked={formData.offers_trial}
+                              onChange={handleToggle}
+                            />
+                            <div className="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/30 dark:border-gray-600 dark:bg-gray-700"></div>
+                          </label>
                         </div>
                       </div>
                     </>

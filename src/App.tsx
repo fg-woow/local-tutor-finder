@@ -12,6 +12,9 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
 import ProfileEdit from "./pages/ProfileEdit";
+import ParentDashboard from "./pages/ParentDashboard";
+import Favorites from "./pages/Favorites";
+import Messages from "./pages/Messages";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +35,9 @@ const App = () => (
             <Route path="/signup" element={<Signup />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/profile/edit" element={<ProfileEdit />} />
+            <Route path="/parent-dashboard" element={<ParentDashboard />} />
+            <Route path="/favorites" element={<Favorites />} />
+            <Route path="/messages" element={<Messages />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

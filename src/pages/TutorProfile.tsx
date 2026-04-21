@@ -1,16 +1,18 @@
 import { useParams, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Star, MapPin, Clock, ArrowLeft, Mail, CheckCircle, Calendar, GraduationCap, Award, Users, FileText, Video, Sparkles } from "lucide-react";
+import { Star, MapPin, Clock, ArrowLeft, Mail, CheckCircle, Calendar, GraduationCap, Award, Users, FileText, Video, Sparkles, Heart, MessageSquare, Gift } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { mockTutors, Tutor, Review } from "@/data/tutors";
-import { supabase } from "@/integrations/supabase/client";
+import { getTutorProfileByUserId, getReviewsByTutorId, getTutorRatingStats, isFavorited, toggleFavorite } from "@/lib/api";
 import Reviews from "@/components/Reviews";
 import BookingCalendar from "@/components/BookingCalendar";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 
 interface EnhancedTutor extends Tutor {
   education?: string;
@@ -20,6 +22,7 @@ interface EnhancedTutor extends Tutor {
   intro_video_url?: string;
   suitable_for?: string[];
   reviews?: Review[];
+  offersTrial?: boolean;
 }
 
 const isNewTutor = (createdAt?: string): boolean => {
@@ -37,20 +40,29 @@ const getYouTubeEmbedUrl = (url: string): string | null => {
 
 const TutorProfile = () => {
   const { id } = useParams();
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [tutor, setTutor] = useState<EnhancedTutor | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isNew, setIsNew] = useState(false);
+  const [isFav, setIsFav] = useState(false);
+  const [isFavLoading, setIsFavLoading] = useState(false);
+
+  useEffect(() => {
+    if (user && id) {
+      isFavorited(user.id, id).then(setIsFav);
+    }
+  }, [user, id]);
 
   useEffect(() => {
     const fetchTutor = async () => {
       // First try to fetch from database
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("user_id", id)
-        .maybeSingle();
+      const { data, error } = await getTutorProfileByUserId(id!);
 
       if (data && !error) {
+        // Also fetch rating stats from reviews
+        const { averageRating, reviewCount } = await getTutorRatingStats(id!);
+
         setTutor({
           id: data.user_id,
           name: data.full_name,
@@ -58,18 +70,19 @@ const TutorProfile = () => {
           subjects: data.subjects || [],
           location: data.location || "Location not set",
           bio: data.bio || "No bio yet",
-          rating: 5.0,
-          reviewCount: 0,
+          rating: averageRating || 5.0,
+          reviewCount: reviewCount,
           hourlyRate: data.hourly_rate || 0,
           availability: data.availability || [],
           experience: data.experience || "New tutor",
           createdAt: data.created_at,
-          education: (data as any).education,
-          certificates: (data as any).certificates || [],
-          course_topics: (data as any).course_topics || [],
-          teaching_levels: (data as any).teaching_levels || [],
-          intro_video_url: (data as any).intro_video_url,
-          suitable_for: (data as any).suitable_for || [],
+          education: data.education ?? undefined,
+          certificates: data.certificates || [],
+          course_topics: data.course_topics || [],
+          teaching_levels: data.teaching_levels || [],
+          intro_video_url: data.intro_video_url ?? undefined,
+          suitable_for: data.suitable_for || [],
+          offersTrial: data.offers_trial || false,
         });
         setIsNew(isNewTutor(data.created_at));
       } else {
@@ -125,6 +138,29 @@ const TutorProfile = () => {
 
   const embedUrl = tutor.intro_video_url ? getYouTubeEmbedUrl(tutor.intro_video_url) : null;
 
+  const handleFavoriteClick = async () => {
+    if (!user) {
+      toast({
+        title: "Please log in",
+        description: "You need to be logged in to favorite tutors.",
+      });
+      return;
+    }
+    if (!tutor.id) return;
+    
+    setIsFavLoading(true);
+    const { isFavorited: newFavState, error } = await toggleFavorite(user.id, tutor.id);
+    if (!error) {
+      setIsFav(newFavState);
+      if (newFavState) {
+        toast({ title: "Added to favorites", description: `${tutor.name} saved to your favorites.` });
+      } else {
+        toast({ title: "Removed from favorites", description: `${tutor.name} removed from favorites.` });
+      }
+    }
+    setIsFavLoading(false);
+  };
+
   return (
     <div className="flex min-h-screen flex-col">
       <Navbar />
@@ -170,8 +206,32 @@ const TutorProfile = () => {
                         </Badge>
                       )}
                     </div>
-                    <div className="flex-1">
-                      <div className="mb-2 flex flex-wrap items-center gap-3">
+                    <div className="flex-1 relative">
+                      <div className="absolute top-0 right-0 flex gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="icon" 
+                          className="rounded-full h-10 w-10 border-muted-foreground/20 hover:bg-red-50 hover:border-red-200 dark:hover:bg-red-900/20"
+                          onClick={handleFavoriteClick}
+                          disabled={isFavLoading}
+                          title={isFav ? "Remove from favorites" : "Add to favorites"}
+                        >
+                          <Heart className={`h-5 w-5 ${isFav ? "fill-red-500 text-red-500" : "text-muted-foreground"}`} />
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="icon" 
+                          className="rounded-full h-10 w-10 border-muted-foreground/20 hover:bg-primary/10 hover:border-primary/30"
+                          asChild
+                          title="Message tutor"
+                        >
+                          <Link to={`/messages?with=${tutor.id}`}>
+                            <MessageSquare className="h-5 w-5 text-muted-foreground hover:text-primary" />
+                          </Link>
+                        </Button>
+                      </div>
+
+                      <div className="mb-2 flex flex-wrap items-center gap-3 pr-24">
                         <h1 className="text-2xl font-bold text-foreground">{tutor.name}</h1>
                         <div className="flex items-center gap-1 rounded-full bg-accent px-3 py-1">
                           <Star className="h-4 w-4 fill-secondary text-secondary" />
@@ -194,6 +254,12 @@ const TutorProfile = () => {
                       </div>
 
                       <div className="flex flex-wrap gap-2">
+                        {tutor.offersTrial && (
+                          <Badge variant="default" className="bg-purple-500 hover:bg-purple-600 gap-1">
+                            <Gift className="h-3 w-3" />
+                            Free Trial Available
+                          </Badge>
+                        )}
                         {tutor.subjects.map((subject) => (
                           <Badge key={subject} variant="subject">
                             {subject}
@@ -290,7 +356,6 @@ const TutorProfile = () => {
                     </div>
                   )}
 
-                  {/* Availability */}
                   {/* Appointment Booking */}
                   <div className="border-t p-6">
                     <h2 className="mb-6 text-lg font-semibold text-foreground">Book a Lesson</h2>

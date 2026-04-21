@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      bookings: {
+        Row: {
+          booking_date: string
+          created_at: string
+          hourly_rate: number
+          id: string
+          status: string
+          student_id: string
+          time_slot: string
+          tutor_id: string
+          updated_at: string
+        }
+        Insert: {
+          booking_date: string
+          created_at?: string
+          hourly_rate?: number
+          id?: string
+          status?: string
+          student_id: string
+          time_slot: string
+          tutor_id: string
+          updated_at?: string
+        }
+        Update: {
+          booking_date?: string
+          created_at?: string
+          hourly_rate?: number
+          id?: string
+          status?: string
+          student_id?: string
+          time_slot?: string
+          tutor_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           availability: string[] | null
@@ -77,6 +113,36 @@ export type Database = {
           teaching_levels?: string[] | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      reviews: {
+        Row: {
+          comment: string
+          created_at: string
+          id: string
+          rating: number
+          student_id: string
+          student_name: string
+          tutor_id: string
+        }
+        Insert: {
+          comment: string
+          created_at?: string
+          id?: string
+          rating: number
+          student_id: string
+          student_name: string
+          tutor_id: string
+        }
+        Update: {
+          comment?: string
+          created_at?: string
+          id?: string
+          rating?: number
+          student_id?: string
+          student_name?: string
+          tutor_id?: string
         }
         Relationships: []
       }

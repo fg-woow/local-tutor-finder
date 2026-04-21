@@ -26,21 +26,8 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { mockTutors, subjects, studentLevels, priceRanges, availabilityOptions } from "@/data/tutors";
-import { supabase } from "@/integrations/supabase/client";
-
-interface TutorProfile {
-  id: string;
-  user_id: string;
-  full_name: string;
-  avatar_url: string | null;
-  bio: string | null;
-  subjects: string[];
-  location: string | null;
-  hourly_rate: number | null;
-  experience: string | null;
-  availability: string[];
-  created_at: string;
-}
+import { getTutorProfiles } from "@/lib/api";
+import type { Profile } from "@/lib/api";
 
 type SortOption = "rating" | "price-low" | "price-high" | "newest" | "location" | "most-reviewed";
 
@@ -53,22 +40,16 @@ const Tutors = () => {
   const [selectedStudentLevels, setSelectedStudentLevels] = useState<string[]>([]);
   const [selectedAvailability, setSelectedAvailability] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
-  const [dbTutors, setDbTutors] = useState<TutorProfile[]>([]);
+  const [dbTutors, setDbTutors] = useState<Profile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isFiltering, setIsFiltering] = useState(false);
 
   useEffect(() => {
     const fetchTutors = async () => {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .not("subjects", "eq", "{}");
+      const { data, error } = await getTutorProfiles();
 
       if (!error && data) {
-        const tutorProfiles = data.filter(
-          (p) => p.subjects && p.subjects.length > 0
-        ) as TutorProfile[];
-        setDbTutors(tutorProfiles);
+        setDbTutors(data);
       }
       setIsLoading(false);
     };
@@ -89,16 +70,17 @@ const Tutors = () => {
       id: t.user_id,
       name: t.full_name,
       avatar: t.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(t.full_name)}&background=0d9488&color=fff`,
-      subjects: t.subjects,
+      subjects: t.subjects || [],
       location: t.location || "Location not set",
       bio: t.bio || "No bio yet",
       rating: 5.0,
       reviewCount: 0,
       hourlyRate: t.hourly_rate || 0,
-      availability: t.availability,
+      availability: t.availability || [],
       experience: t.experience || "New tutor",
       createdAt: t.created_at,
-      studentLevel: [] as string[],
+      studentLevel: t.teaching_levels || ([] as string[]),
+      offersTrial: t.offers_trial || false,
     }));
 
     const mockWithDates = mockTutors.map((t) => ({

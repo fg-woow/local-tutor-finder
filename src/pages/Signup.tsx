@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
-import { BookOpen, Mail, Lock, User, GraduationCap, Users, ShieldCheck } from "lucide-react";
+import { BookOpen, Mail, Lock, User, GraduationCap, Users, ShieldCheck, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -16,7 +16,7 @@ const signupSchema = z.object({
   email: z.string().trim().email("Please enter a valid email"),
   password: z.string().min(6, "Password must be at least 6 characters"),
   confirmPassword: z.string(),
-  role: z.enum(["student", "tutor"]),
+  role: z.enum(["student", "tutor", "parent"]),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
   path: ["confirmPassword"],
@@ -45,7 +45,7 @@ const Signup = () => {
     email: "",
     password: "",
     confirmPassword: "",
-    role: "student" as "student" | "tutor",
+    role: "student" as "student" | "tutor" | "parent",
   });
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -112,9 +112,11 @@ const Signup = () => {
       title: "Account created!",
       description: formData.role === "tutor" 
         ? "Welcome to Learnnear! Complete your tutor profile to start teaching."
+        : formData.role === "parent"
+        ? "Welcome to Learnnear! Set up your parent dashboard to manage your child's education."
         : "Welcome to Learnnear! Start exploring tutors.",
     });
-    navigate("/profile");
+    navigate(formData.role === "parent" ? "/parent-dashboard" : "/profile");
     setIsLoading(false);
   };
 
@@ -156,7 +158,7 @@ const Signup = () => {
                 <label className="mb-2 block text-sm font-medium text-foreground">
                   I want to...
                 </label>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-3 gap-3">
                   <button
                     type="button"
                     onClick={() => setFormData({ ...formData, role: "student" })}
@@ -183,6 +185,20 @@ const Signup = () => {
                     <Users className={`h-6 w-6 ${formData.role === "tutor" ? "text-primary" : "text-muted-foreground"}`} />
                     <span className={`text-sm font-medium ${formData.role === "tutor" ? "text-primary" : "text-foreground"}`}>
                       Become a tutor
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, role: "parent" })}
+                    className={`flex flex-col items-center gap-2 rounded-lg border-2 p-4 transition-all ${
+                      formData.role === "parent"
+                        ? "border-primary bg-primary/5 shadow-sm"
+                        : "border-border hover:border-primary/50"
+                    }`}
+                  >
+                    <Heart className={`h-6 w-6 ${formData.role === "parent" ? "text-primary" : "text-muted-foreground"}`} />
+                    <span className={`text-sm font-medium ${formData.role === "parent" ? "text-primary" : "text-foreground"}`}>
+                      I'm a parent
                     </span>
                   </button>
                 </div>

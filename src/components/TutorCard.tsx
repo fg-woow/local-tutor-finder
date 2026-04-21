@@ -1,9 +1,13 @@
-import { Star, MapPin, Clock, Sparkles } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Star, MapPin, Clock, Sparkles, Heart, Gift } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tutor } from "@/data/tutors";
+import { useAuth } from "@/hooks/useAuth";
+import { isFavorited, toggleFavorite } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
 
 interface TutorCardProps {
   tutor: Tutor;
@@ -19,6 +23,38 @@ const isNewTutor = (createdAt?: string): boolean => {
 
 const TutorCard = ({ tutor }: TutorCardProps) => {
   const isNew = isNewTutor(tutor.createdAt);
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [isFav, setIsFav] = useState(false);
+  const [isFavLoading, setIsFavLoading] = useState(false);
+
+  useEffect(() => {
+    if (user && tutor.id) {
+      isFavorited(user.id, tutor.id).then(setIsFav);
+    }
+  }, [user, tutor.id]);
+
+  const handleFavoriteClick = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!user) {
+      toast({
+        title: "Please log in",
+        description: "You need to be logged in to favorite tutors.",
+      });
+      return;
+    }
+    setIsFavLoading(true);
+    const { isFavorited: newFavState, error } = await toggleFavorite(user.id, tutor.id);
+    if (!error) {
+      setIsFav(newFavState);
+      if (newFavState) {
+        toast({ title: "Added to favorites", description: `${tutor.name} saved to your favorites.` });
+      } else {
+        toast({ title: "Removed from favorites", description: `${tutor.name} removed from favorites.` });
+      }
+    }
+    setIsFavLoading(false);
+  };
 
   return (
     <Card className="group overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5">
@@ -37,6 +73,14 @@ const TutorCard = ({ tutor }: TutorCardProps) => {
                 New
               </Badge>
             )}
+            <button
+              onClick={handleFavoriteClick}
+              disabled={isFavLoading}
+              className="absolute top-2 right-2 p-2 rounded-full bg-black/20 backdrop-blur-sm text-white hover:bg-black/40 transition-colors z-10"
+              aria-label={isFav ? "Remove from favorites" : "Add to favorites"}
+            >
+              <Heart className={`h-4 w-4 ${isFav ? "fill-red-500 text-red-500" : ""}`} />
+            </button>
           </div>
 
           {/* Content Section */}
@@ -56,8 +100,14 @@ const TutorCard = ({ tutor }: TutorCardProps) => {
               </div>
             </div>
 
-            {/* Subjects */}
+            {/* Subjects & Badges */}
             <div className="mb-3 flex flex-wrap gap-1.5">
+              {tutor.offersTrial && (
+                <Badge variant="default" className="bg-purple-500 hover:bg-purple-600 gap-1">
+                  <Gift className="h-3 w-3" />
+                  Free Trial
+                </Badge>
+              )}
               {tutor.subjects.map((subject) => (
                 <Badge key={subject} variant="subject">
                   {subject}

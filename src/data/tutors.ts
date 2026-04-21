@@ -21,6 +21,7 @@ export interface Tutor {
   createdAt?: string;
   studentLevel?: string[];
   reviews?: Review[];
+  offersTrial?: boolean;
 }
 
 export const studentLevels = [

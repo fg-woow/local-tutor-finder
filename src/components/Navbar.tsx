@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { BookOpen, User, LogOut, Menu, X, Edit } from "lucide-react";
+import { BookOpen, User, LogOut, Menu, X, Edit, Heart, MessageSquare, LayoutDashboard } from "lucide-react";
+import NotificationBell from "@/components/NotificationBell";
 import { useAuth } from "@/hooks/useAuth";
 import {
   DropdownMenu,
@@ -50,6 +51,15 @@ const Navbar = () => {
           Become a Tutor
         </Link>
       )}
+      {user && role === "parent" && (
+        <Link
+          to="/parent-dashboard"
+          onClick={onClick}
+          className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+        >
+          Dashboard
+        </Link>
+      )}
       {user && (
         <Link
           to="/profile"
@@ -77,10 +87,32 @@ const Navbar = () => {
           <NavLinks />
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           {isLoading ? (
             <div className="h-9 w-20 animate-pulse rounded-md bg-muted" />
           ) : user ? (
+            <>
+            {/* Notification Bell */}
+            <NotificationBell />
+
+            {/* Messages */}
+            <Link
+              to="/messages"
+              className="relative flex h-9 w-9 items-center justify-center rounded-full hover:bg-muted transition-colors hidden md:flex"
+              title="Messages"
+            >
+              <MessageSquare className="h-5 w-5 text-muted-foreground" />
+            </Link>
+
+            {/* Favorites */}
+            <Link
+              to="/favorites"
+              className="relative flex h-9 w-9 items-center justify-center rounded-full hover:bg-muted transition-colors hidden md:flex"
+              title="Favorites"
+            >
+              <Heart className="h-5 w-5 text-muted-foreground" />
+            </Link>
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-9 w-9 rounded-full">
@@ -111,6 +143,26 @@ const Navbar = () => {
                     Edit Profile
                   </Link>
                 </DropdownMenuItem>
+                {role === "parent" && (
+                  <DropdownMenuItem asChild>
+                    <Link to="/parent-dashboard" className="cursor-pointer">
+                      <LayoutDashboard className="mr-2 h-4 w-4" />
+                      Parent Dashboard
+                    </Link>
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem asChild>
+                  <Link to="/favorites" className="cursor-pointer">
+                    <Heart className="mr-2 h-4 w-4" />
+                    Favorites
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/messages" className="cursor-pointer">
+                    <MessageSquare className="mr-2 h-4 w-4" />
+                    Messages
+                  </Link>
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={signOut} className="cursor-pointer text-destructive">
                   <LogOut className="mr-2 h-4 w-4" />
@@ -118,6 +170,7 @@ const Navbar = () => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+            </>
           ) : (
             <>
               <Button variant="ghost" size="sm" asChild className="hidden md:inline-flex">
@@ -165,6 +218,32 @@ const Navbar = () => {
                 {user && (
                   <>
                     <hr className="my-2" />
+                    <Link
+                      to="/favorites"
+                      onClick={() => setMobileOpen(false)}
+                      className="flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                    >
+                      <Heart className="h-4 w-4" />
+                      Favorites
+                    </Link>
+                    <Link
+                      to="/messages"
+                      onClick={() => setMobileOpen(false)}
+                      className="flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                    >
+                      <MessageSquare className="h-4 w-4" />
+                      Messages
+                    </Link>
+                    {role === "parent" && (
+                      <Link
+                        to="/parent-dashboard"
+                        onClick={() => setMobileOpen(false)}
+                        className="flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                      >
+                        <LayoutDashboard className="h-4 w-4" />
+                        Parent Dashboard
+                      </Link>
+                    )}
                     <Link
                       to="/profile/edit"
                       onClick={() => setMobileOpen(false)}

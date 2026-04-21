@@ -23,7 +23,7 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useAuth, LocalUser } from "@/hooks/useAuth";
+import { useAuth, UserProfile } from "@/hooks/useAuth";
 
 const isNewUser = (createdAt?: string): boolean => {
   if (!createdAt) return false;
@@ -41,8 +41,8 @@ const getYouTubeEmbedUrl = (url: string): string | null => {
 };
 
 /* ===== STUDENT PROFILE ===== */
-const StudentProfile = ({ user }: { user: LocalUser }) => {
-  const isNew = isNewUser(user.created_at);
+const StudentProfile = ({ profile }: { profile: UserProfile }) => {
+  const isNew = isNewUser(profile.created_at);
 
   return (
     <div className="space-y-6">
@@ -59,8 +59,8 @@ const StudentProfile = ({ user }: { user: LocalUser }) => {
             <div className="flex flex-col sm:flex-row gap-4 -mt-12">
               <div className="relative">
                 <img
-                  src={user.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.full_name)}&background=0d9488&color=fff&size=200`}
-                  alt={user.full_name}
+                  src={profile.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.full_name)}&background=0d9488&color=fff&size=200`}
+                  alt={profile.full_name}
                   className="h-24 w-24 rounded-2xl border-4 border-card object-cover shadow-lg"
                 />
                 {isNew && (
@@ -72,7 +72,7 @@ const StudentProfile = ({ user }: { user: LocalUser }) => {
               </div>
               <div className="sm:mt-14 flex-1">
                 <div className="flex flex-wrap items-center gap-3">
-                  <h1 className="text-2xl font-bold text-foreground">{user.full_name}</h1>
+                  <h1 className="text-2xl font-bold text-foreground">{profile.full_name}</h1>
                   <Badge variant="secondary" className="gap-1">
                     <GraduationCap className="h-3 w-3" />
                     Student
@@ -81,12 +81,12 @@ const StudentProfile = ({ user }: { user: LocalUser }) => {
                 <div className="mt-1 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
                   <div className="flex items-center gap-1">
                     <Mail className="h-3.5 w-3.5" />
-                    <span>{user.email}</span>
+                    <span>{profile.email}</span>
                   </div>
-                  {user.location && (
+                  {profile.location && (
                     <div className="flex items-center gap-1">
                       <MapPin className="h-3.5 w-3.5" />
-                      <span>{user.location}</span>
+                      <span>{profile.location}</span>
                     </div>
                   )}
                 </div>
@@ -103,13 +103,13 @@ const StudentProfile = ({ user }: { user: LocalUser }) => {
       </Card>
 
       {/* Bio */}
-      {user.bio && (
+      {profile.bio && (
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">About Me</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="leading-relaxed text-muted-foreground">{user.bio}</p>
+            <p className="leading-relaxed text-muted-foreground">{profile.bio}</p>
           </CardContent>
         </Card>
       )}
@@ -165,11 +165,11 @@ const StudentProfile = ({ user }: { user: LocalUser }) => {
           <div className="space-y-3 text-sm">
             <div className="flex items-center justify-between py-2 border-b">
               <span className="text-muted-foreground">Full Name</span>
-              <span className="font-medium text-foreground">{user.full_name}</span>
+              <span className="font-medium text-foreground">{profile.full_name}</span>
             </div>
             <div className="flex items-center justify-between py-2 border-b">
               <span className="text-muted-foreground">Email</span>
-              <span className="font-medium text-foreground">{user.email}</span>
+              <span className="font-medium text-foreground">{profile.email}</span>
             </div>
             <div className="flex items-center justify-between py-2 border-b">
               <span className="text-muted-foreground">Role</span>
@@ -178,7 +178,7 @@ const StudentProfile = ({ user }: { user: LocalUser }) => {
             <div className="flex items-center justify-between py-2">
               <span className="text-muted-foreground">Member Since</span>
               <span className="font-medium text-foreground">
-                {new Date(user.created_at).toLocaleDateString("en-US", {
+                {new Date(profile.created_at).toLocaleDateString("en-US", {
                   year: "numeric",
                   month: "long",
                   day: "numeric",
@@ -193,11 +193,18 @@ const StudentProfile = ({ user }: { user: LocalUser }) => {
 };
 
 /* ===== TUTOR PROFILE ===== */
-const TutorProfile = ({ user }: { user: LocalUser }) => {
-  const isNew = isNewUser(user.created_at);
-  const embedUrl = user.intro_video_url
-    ? getYouTubeEmbedUrl(user.intro_video_url)
+const TutorProfileView = ({ profile }: { profile: UserProfile }) => {
+  const isNew = isNewUser(profile.created_at);
+  const embedUrl = profile.intro_video_url
+    ? getYouTubeEmbedUrl(profile.intro_video_url)
     : null;
+
+  const subjects = profile.subjects || [];
+  const availability = profile.availability || [];
+  const certificates = profile.certificates || [];
+  const course_topics = profile.course_topics || [];
+  const teaching_levels = profile.teaching_levels || [];
+  const suitable_for = profile.suitable_for || [];
 
   return (
     <div className="grid gap-8 lg:grid-cols-3">
@@ -215,8 +222,8 @@ const TutorProfile = ({ user }: { user: LocalUser }) => {
               <div className="flex flex-col sm:flex-row gap-4 -mt-12">
                 <div className="relative">
                   <img
-                    src={user.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.full_name)}&background=0d9488&color=fff&size=200`}
-                    alt={user.full_name}
+                    src={profile.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.full_name)}&background=0d9488&color=fff&size=200`}
+                    alt={profile.full_name}
                     className="h-28 w-28 rounded-2xl border-4 border-card object-cover shadow-lg"
                   />
                   {isNew && (
@@ -228,29 +235,29 @@ const TutorProfile = ({ user }: { user: LocalUser }) => {
                 </div>
                 <div className="sm:mt-14 flex-1">
                   <div className="flex flex-wrap items-center gap-3">
-                    <h1 className="text-2xl font-bold text-foreground">{user.full_name}</h1>
+                    <h1 className="text-2xl font-bold text-foreground">{profile.full_name}</h1>
                     <Badge variant="default" className="gap-1 bg-primary">
                       <Users className="h-3 w-3" />
                       Tutor
                     </Badge>
                   </div>
                   <div className="mt-1 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-                    {user.location && (
+                    {profile.location && (
                       <div className="flex items-center gap-1">
                         <MapPin className="h-3.5 w-3.5" />
-                        <span>{user.location}</span>
+                        <span>{profile.location}</span>
                       </div>
                     )}
-                    {user.experience && (
+                    {profile.experience && (
                       <div className="flex items-center gap-1">
                         <Clock className="h-3.5 w-3.5" />
-                        <span>{user.experience} experience</span>
+                        <span>{profile.experience} experience</span>
                       </div>
                     )}
                   </div>
-                  {user.subjects.length > 0 && (
+                  {subjects.length > 0 && (
                     <div className="mt-3 flex flex-wrap gap-1.5">
-                      {user.subjects.map((subject) => (
+                      {subjects.map((subject) => (
                         <Badge key={subject} variant="subject">
                           {subject}
                         </Badge>
@@ -271,30 +278,30 @@ const TutorProfile = ({ user }: { user: LocalUser }) => {
             <div className="border-t p-6">
               <h2 className="mb-4 text-lg font-semibold text-foreground">About</h2>
               <p className="leading-relaxed text-muted-foreground">
-                {user.bio || "No bio added yet. Click 'Edit Profile' to tell students about yourself!"}
+                {profile.bio || "No bio added yet. Click 'Edit Profile' to tell students about yourself!"}
               </p>
             </div>
 
             {/* Education */}
-            {user.education && (
+            {profile.education && (
               <div className="border-t p-6">
                 <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-foreground">
                   <GraduationCap className="h-5 w-5 text-primary" />
                   Education
                 </h2>
-                <p className="text-muted-foreground">{user.education}</p>
+                <p className="text-muted-foreground">{profile.education}</p>
               </div>
             )}
 
             {/* Certificates */}
-            {user.certificates.length > 0 && (
+            {certificates.length > 0 && (
               <div className="border-t p-6">
                 <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-foreground">
                   <Award className="h-5 w-5 text-primary" />
                   Certificates & Qualifications
                 </h2>
                 <div className="flex flex-wrap gap-2">
-                  {user.certificates.map((cert) => (
+                  {certificates.map((cert) => (
                     <Badge key={cert} variant="secondary" className="gap-1">
                       <Award className="h-3 w-3" />
                       {cert}
@@ -305,14 +312,14 @@ const TutorProfile = ({ user }: { user: LocalUser }) => {
             )}
 
             {/* Course Topics */}
-            {user.course_topics.length > 0 && (
+            {course_topics.length > 0 && (
               <div className="border-t p-6">
                 <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-foreground">
                   <FileText className="h-5 w-5 text-primary" />
                   Topics I Teach
                 </h2>
                 <div className="flex flex-wrap gap-2">
-                  {user.course_topics.map((topic) => (
+                  {course_topics.map((topic) => (
                     <Badge key={topic} variant="outline">
                       {topic}
                     </Badge>
@@ -322,14 +329,14 @@ const TutorProfile = ({ user }: { user: LocalUser }) => {
             )}
 
             {/* Teaching Levels */}
-            {user.teaching_levels.length > 0 && (
+            {teaching_levels.length > 0 && (
               <div className="border-t p-6">
                 <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-foreground">
                   <Users className="h-5 w-5 text-primary" />
                   Student Levels
                 </h2>
                 <div className="flex flex-wrap gap-2">
-                  {user.teaching_levels.map((level) => (
+                  {teaching_levels.map((level) => (
                     <Badge key={level} variant="level">
                       {level}
                     </Badge>
@@ -339,11 +346,11 @@ const TutorProfile = ({ user }: { user: LocalUser }) => {
             )}
 
             {/* Suitable For */}
-            {user.suitable_for.length > 0 && (
+            {suitable_for.length > 0 && (
               <div className="border-t p-6">
                 <h2 className="mb-4 text-lg font-semibold text-foreground">Best Suited For</h2>
                 <div className="flex flex-wrap gap-2">
-                  {user.suitable_for.map((item) => (
+                  {suitable_for.map((item) => (
                     <div
                       key={item}
                       className="flex items-center gap-2 rounded-lg bg-green-100 dark:bg-green-900/30 px-4 py-2"
@@ -359,14 +366,14 @@ const TutorProfile = ({ user }: { user: LocalUser }) => {
             )}
 
             {/* Availability */}
-            {user.availability.length > 0 && (
+            {availability.length > 0 && (
               <div className="border-t p-6">
                 <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-foreground">
                   <Clock className="h-5 w-5 text-primary" />
                   Availability
                 </h2>
                 <div className="flex flex-wrap gap-2">
-                  {user.availability.map((slot) => (
+                  {availability.map((slot) => (
                     <Badge key={slot} variant="outline" className="gap-1">
                       <Calendar className="h-3 w-3" />
                       {slot}
@@ -406,9 +413,9 @@ const TutorProfile = ({ user }: { user: LocalUser }) => {
           <CardContent className="p-6">
             {/* Rate */}
             <div className="mb-6 text-center">
-              {user.hourly_rate ? (
+              {profile.hourly_rate ? (
                 <>
-                  <span className="text-3xl font-bold text-foreground">${user.hourly_rate}</span>
+                  <span className="text-3xl font-bold text-foreground">${profile.hourly_rate}</span>
                   <span className="text-muted-foreground">/hour</span>
                 </>
               ) : (
@@ -434,7 +441,7 @@ const TutorProfile = ({ user }: { user: LocalUser }) => {
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Mail className="h-4 w-4 text-primary" />
-                <span>{user.email}</span>
+                <span>{profile.email}</span>
               </div>
             </div>
 
@@ -448,7 +455,7 @@ const TutorProfile = ({ user }: { user: LocalUser }) => {
                 <div className="flex justify-between">
                   <span>Member Since</span>
                   <span className="font-medium text-foreground">
-                    {new Date(user.created_at).toLocaleDateString("en-US", {
+                    {new Date(profile.created_at).toLocaleDateString("en-US", {
                       month: "short",
                       year: "numeric",
                     })}
@@ -462,14 +469,14 @@ const TutorProfile = ({ user }: { user: LocalUser }) => {
               <h3 className="mb-3 text-sm font-semibold text-foreground">Profile Completeness</h3>
               {(() => {
                 const fields = [
-                  !!user.bio,
-                  user.subjects.length > 0,
-                  !!user.location,
-                  !!user.hourly_rate,
-                  !!user.experience,
-                  user.availability.length > 0,
-                  !!user.education,
-                  user.certificates.length > 0,
+                  !!profile.bio,
+                  subjects.length > 0,
+                  !!profile.location,
+                  !!profile.hourly_rate,
+                  !!profile.experience,
+                  availability.length > 0,
+                  !!profile.education,
+                  certificates.length > 0,
                 ];
                 const filled = fields.filter(Boolean).length;
                 const percentage = Math.round((filled / fields.length) * 100);
@@ -511,7 +518,7 @@ const TutorProfile = ({ user }: { user: LocalUser }) => {
 
 /* ===== MAIN PROFILE PAGE ===== */
 const Profile = () => {
-  const { user, isLoading } = useAuth();
+  const { user, profile, role, isLoading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -532,7 +539,7 @@ const Profile = () => {
     );
   }
 
-  if (!user) return null;
+  if (!user || !profile) return null;
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -545,10 +552,10 @@ const Profile = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
           >
-            {user.role === "tutor" ? (
-              <TutorProfile user={user} />
+            {role === "tutor" ? (
+              <TutorProfileView profile={profile} />
             ) : (
-              <StudentProfile user={user} />
+              <StudentProfile profile={profile} />
             )}
           </motion.div>
         </div>
