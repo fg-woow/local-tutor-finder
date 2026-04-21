@@ -87,6 +87,8 @@ const TutorProfile = () => {
           intro_video_url: data.intro_video_url ?? undefined,
           suitable_for: data.suitable_for || [],
           offersTrial: data.offers_trial || false,
+          latitude: data.latitude ?? undefined,
+          longitude: data.longitude ?? undefined,
         });
         setIsNew(isNewTutor(data.created_at));
       } else {
