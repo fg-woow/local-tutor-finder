@@ -107,12 +107,16 @@ export function getUserLocation(): Promise<Coordinates | null> {
  * Location coordinates for known cities (fallback when no DB coords).
  */
 export const CITY_COORDINATES: Record<string, Coordinates> = {
-  "Manhattan, NY": { latitude: 40.7580, longitude: -73.9855 },
-  "Brooklyn, NY": { latitude: 40.6782, longitude: -73.9442 },
-  "Queens, NY": { latitude: 40.7282, longitude: -73.7949 },
-  "San Francisco, CA": { latitude: 37.7749, longitude: -122.4194 },
-  "Los Angeles, CA": { latitude: 34.0522, longitude: -118.2437 },
-  "Chicago, IL": { latitude: 41.8781, longitude: -87.6298 },
-  "Boston, MA": { latitude: 42.3601, longitude: -71.0589 },
-  "Seattle, WA": { latitude: 47.6062, longitude: -122.3321 },
+  "Kadıköy, Istanbul": { latitude: 40.9901, longitude: 29.0292 },
+  "Beşiktaş, Istanbul": { latitude: 41.0428, longitude: 29.0077 },
+  "Şişli, Istanbul": { latitude: 41.0601, longitude: 28.9877 },
+  "Üsküdar, Istanbul": { latitude: 41.0270, longitude: 29.0152 },
+  "Fatih, Istanbul": { latitude: 41.0113, longitude: 28.9405 },
+  "Beyoğlu, Istanbul": { latitude: 41.0369, longitude: 28.9775 },
+  "Bakırköy, Istanbul": { latitude: 40.9888, longitude: 28.8708 },
+  "Maltepe, Istanbul": { latitude: 40.9255, longitude: 29.1415 },
+  "Sarıyer, Istanbul": { latitude: 41.1685, longitude: 29.0573 },
+  "Ataşehir, Istanbul": { latitude: 40.9839, longitude: 29.1082 },
+  "Ümraniye, Istanbul": { latitude: 41.0256, longitude: 29.0987 },
+  "Kartal, Istanbul": { latitude: 40.8872, longitude: 29.1932 },
 };
