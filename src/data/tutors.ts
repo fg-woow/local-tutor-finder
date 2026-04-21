@@ -41,7 +41,7 @@ export const priceRanges = [
 
 export const mockTutors: Tutor[] = [
   {
-    id: "1",
+    id: "00000001-0000-0000-0000-000000000000",
     name: "Sarah Mitchell",
     avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400",
     subjects: ["Mathematics", "Physics"],
@@ -71,7 +71,7 @@ export const mockTutors: Tutor[] = [
     ]
   },
   {
-    id: "2",
+    id: "00000002-0000-0000-0000-000000000000",
     name: "David Chen",
     avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400",
     subjects: ["Chemistry", "Biology"],
@@ -94,7 +94,7 @@ export const mockTutors: Tutor[] = [
     ]
   },
   {
-    id: "3",
+    id: "00000003-0000-0000-0000-000000000000",
     name: "Emily Rodriguez",
     avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400",
     subjects: ["English", "Literature", "Writing"],
@@ -124,7 +124,7 @@ export const mockTutors: Tutor[] = [
     ]
   },
   {
-    id: "4",
+    id: "00000004-0000-0000-0000-000000000000",
     name: "Marcus Johnson",
     avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400",
     subjects: ["Computer Science", "Programming"],
@@ -147,7 +147,7 @@ export const mockTutors: Tutor[] = [
     ]
   },
   {
-    id: "5",
+    id: "00000005-0000-0000-0000-000000000000",
     name: "Lisa Park",
     avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400",
     subjects: ["Korean", "Japanese"],
@@ -170,7 +170,7 @@ export const mockTutors: Tutor[] = [
     ]
   },
   {
-    id: "6",
+    id: "00000006-0000-0000-0000-000000000000",
     name: "James Wilson",
     avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400",
     subjects: ["History", "Geography"],
@@ -193,7 +193,7 @@ export const mockTutors: Tutor[] = [
     ]
   },
   {
-    id: "7",
+    id: "00000007-0000-0000-0000-000000000000",
     name: "Aisha Patel",
     avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400",
     subjects: ["Mathematics", "Computer Science"],
@@ -224,7 +224,7 @@ export const mockTutors: Tutor[] = [
     ]
   },
   {
-    id: "8",
+    id: "00000008-0000-0000-0000-000000000000",
     name: "Carlos Mendez",
     avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400",
     subjects: ["Spanish", "French"],
@@ -247,7 +247,7 @@ export const mockTutors: Tutor[] = [
     ]
   },
   {
-    id: "9",
+    id: "00000009-0000-0000-0000-000000000000",
     name: "Dr. Rachel Kim",
     avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400",
     subjects: ["Biology", "Chemistry"],
@@ -277,7 +277,7 @@ export const mockTutors: Tutor[] = [
     ]
   },
   {
-    id: "10",
+    id: "00000010-0000-0000-0000-000000000000",
     name: "Oliver Thompson",
     avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400",
     subjects: ["Music", "Art"],
@@ -301,7 +301,7 @@ export const mockTutors: Tutor[] = [
     ]
   },
   {
-    id: "11",
+    id: "00000011-0000-0000-0000-000000000000",
     name: "Natalie Foster",
     avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400",
     subjects: ["Physics", "Mathematics"],
@@ -324,7 +324,7 @@ export const mockTutors: Tutor[] = [
     ]
   },
   {
-    id: "12",
+    id: "00000012-0000-0000-0000-000000000000",
     name: "Tyler Brooks",
     avatar: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400",
     subjects: ["Programming", "Computer Science"],

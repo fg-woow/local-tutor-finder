@@ -406,9 +406,11 @@ const TutorProfile = () => {
                     <span className="text-muted-foreground">/hour</span>
                   </div>
 
-                  <Button size="lg" className="mb-4 w-full">
-                    <Mail className="mr-2 h-4 w-4" />
-                    Contact {tutor.name.split(" ")[0]}
+                  <Button size="lg" className="mb-4 w-full" asChild>
+                    <Link to={`/messages?with=${tutor.id}`}>
+                      <MessageSquare className="mr-2 h-4 w-4" />
+                      Message {tutor.name.split(" ")[0]}
+                    </Link>
                   </Button>
 
                   <div className="space-y-3 text-sm">

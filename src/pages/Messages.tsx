@@ -208,7 +208,7 @@ const Messages = () => {
                       <MessageSquare className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
                       <p className="text-sm text-muted-foreground">No conversations yet</p>
                       <p className="text-xs text-muted-foreground mt-1">
-                        Contact a tutor to start chatting
+                        Message a tutor to start chatting
                       </p>
                     </div>
                   ) : (
