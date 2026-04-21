@@ -179,11 +179,6 @@ const BookingCalendar = ({ tutorId, hourlyRate }: BookingCalendarProps) => {
                                     >
                                         <Clock className={`mr-2 h-4 w-4 ${disabled ? "opacity-50" : ""}`} />
                                         <span className={disabled ? "line-through opacity-70" : ""}>{time}</span>
-                                        {disabled && (
-                                            <Badge variant="outline" className="ml-auto text-[10px] uppercase bg-background text-red-500 border-red-200">
-                                                Booked
-                                            </Badge>
-                                        )}
                                     </Button>
                                 );
                             })
