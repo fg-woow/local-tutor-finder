@@ -47,6 +47,29 @@ const Tutors = () => {
   const [isFiltering, setIsFiltering] = useState(false);
   const { userLocation } = useUserLocation();
 
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  
+  // Get unique subjects for auto-complete
+  const availableSubjects = useMemo(() => {
+    const subjects = new Set<string>();
+    // Add subjects from mock tutors
+    mockTutors.forEach(t => t.subjects.forEach(s => subjects.add(s)));
+    // Add subjects from DB tutors
+    dbTutors.forEach(t => {
+      if (t.subjects) t.subjects.forEach((s: string) => subjects.add(s));
+    });
+    return Array.from(subjects).sort();
+  }, [dbTutors]);
+
+  // Filter suggestions based on input
+  const subjectSuggestions = useMemo(() => {
+    if (!subjectFilter) return [];
+    return availableSubjects.filter(s => 
+      s.toLowerCase().includes(subjectFilter.toLowerCase()) && 
+      s.toLowerCase() !== subjectFilter.toLowerCase()
+    ).slice(0, 5); // Limit to 5 suggestions
+  }, [subjectFilter, availableSubjects]);
+
   useEffect(() => {
     const fetchTutors = async () => {
       const { data, error } = await getTutorProfiles();
@@ -346,9 +369,35 @@ const Tutors = () => {
                 <Input
                   placeholder="Search by subject..."
                   value={subjectFilter}
-                  onChange={(e) => setSubjectFilter(e.target.value)}
+                  onChange={(e) => {
+                    setSubjectFilter(e.target.value);
+                    setShowSuggestions(true);
+                  }}
+                  onFocus={() => setShowSuggestions(true)}
+                  onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                   className="pl-10"
                 />
+                
+                {/* Auto-complete dropdown */}
+                {showSuggestions && subjectSuggestions.length > 0 && (
+                  <div className="absolute top-full left-0 right-0 z-10 mt-1 bg-popover border border-border rounded-md shadow-md overflow-hidden">
+                    <ul className="py-1">
+                      {subjectSuggestions.map((suggestion, idx) => (
+                        <li 
+                          key={idx}
+                          className="px-4 py-2 hover:bg-accent hover:text-accent-foreground cursor-pointer text-sm"
+                          onClick={() => {
+                            setSubjectFilter(suggestion);
+                            setShowSuggestions(false);
+                            handleSearch();
+                          }}
+                        >
+                          {suggestion}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
               <div className="relative flex-1">
                 <MapPin className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
