@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar, Clock, User, XCircle, CheckCircle } from "lucide-react";
 import { format, isPast, parse } from "date-fns";
 import { toast } from "sonner";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function SessionHistory() {
   const { user, role } = useAuth();
@@ -112,102 +113,122 @@ export default function SessionHistory() {
     );
   }
 
-  if (enrichedBookings.length === 0) {
-    return (
-      <Card>
-        <CardContent className="p-8 text-center text-muted-foreground">
-          <Calendar className="h-10 w-10 mx-auto mb-3 opacity-20" />
-          <p>No tutoring sessions found.</p>
-        </CardContent>
-      </Card>
-    );
-  }
+  const upcomingBookings = enrichedBookings.filter(b => !b.isPast);
+  const pastBookings = enrichedBookings.filter(b => b.isPast);
 
-  return (
-    <div className="space-y-4">
-      {enrichedBookings.map((booking) => (
-        <Card key={booking.id} className={`overflow-hidden transition-all ${booking.displayStatus === 'cancelled' ? 'opacity-60' : ''}`}>
-          <CardContent className="p-0">
-            <div className="flex flex-col sm:flex-row">
-              {/* Date/Time Section */}
-              <div className="bg-muted/50 p-4 sm:w-48 flex flex-col justify-center border-b sm:border-b-0 sm:border-r">
-                <div className="flex items-center gap-2 text-foreground font-semibold mb-1">
-                  <Calendar className="h-4 w-4 text-primary" />
-                  {format(new Date(booking.booking_date), "MMM d, yyyy")}
-                </div>
-                <div className="flex items-center gap-2 text-muted-foreground text-sm">
-                  <Clock className="h-4 w-4" />
-                  {booking.time_slot}
-                </div>
-              </div>
-
-              {/* Details Section */}
-              <div className="p-4 flex-1 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
-                    {booking.partner.avatar_url ? (
-                      <img src={booking.partner.avatar_url} alt="Avatar" className="h-full w-full object-cover" />
-                    ) : (
-                      <User className="h-5 w-5 text-primary" />
-                    )}
-                  </div>
-                  <div>
-                    <p className="font-medium text-foreground text-sm text-muted-foreground">
-                      {role === "student" ? "Tutor" : "Student"}
-                    </p>
-                    <p className="font-semibold text-foreground">
-                      {booking.partner.full_name}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex flex-col sm:items-end gap-2 w-full sm:w-auto">
-                  <div className="flex gap-2">
-                    {booking.displayStatus === "scheduled" && !booking.isPast && (
-                      <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                        Upcoming
-                      </Badge>
-                    )}
-                    {booking.displayStatus === "completed" && (
-                      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                        Completed
-                      </Badge>
-                    )}
-                    {booking.displayStatus === "cancelled" && (
-                      <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
-                        Cancelled
-                      </Badge>
-                    )}
-                    <Badge variant="secondary" className="font-mono">
-                      ${booking.hourly_rate}/hr
-                    </Badge>
-                  </div>
-
-                  {booking.displayStatus === "scheduled" && !booking.isPast && (
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      onClick={() => handleCancel(booking.id)}
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50 h-8 px-2 w-full sm:w-auto"
-                    >
-                      <XCircle className="h-4 w-4 mr-1" />
-                      Cancel
-                    </Button>
-                  )}
-                  {booking.displayStatus === "completed" && role === "student" && (
-                    <Button variant="ghost" size="sm" className="h-8 px-2 w-full sm:w-auto text-primary hover:text-primary hover:bg-primary/5" asChild>
-                      <a href={`/tutor/${booking.tutor_id}`}>
-                        <CheckCircle className="h-4 w-4 mr-1" />
-                        Leave Review
-                      </a>
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </div>
+  const renderBookings = (list: any[]) => {
+    if (list.length === 0) {
+      return (
+        <Card>
+          <CardContent className="p-8 text-center text-muted-foreground">
+            <Calendar className="h-10 w-10 mx-auto mb-3 opacity-20" />
+            <p>No tutoring sessions found here.</p>
           </CardContent>
         </Card>
-      ))}
-    </div>
+      );
+    }
+
+    return (
+      <div className="space-y-4">
+        {list.map((booking) => (
+          <Card key={booking.id} className={`overflow-hidden transition-all ${booking.displayStatus === 'cancelled' ? 'opacity-60' : ''}`}>
+            <CardContent className="p-0">
+              <div className="flex flex-col sm:flex-row">
+                {/* Date/Time Section */}
+                <div className="bg-muted/50 p-4 sm:w-48 flex flex-col justify-center border-b sm:border-b-0 sm:border-r">
+                  <div className="flex items-center gap-2 text-foreground font-semibold mb-1">
+                    <Calendar className="h-4 w-4 text-primary" />
+                    {format(new Date(booking.booking_date), "MMM d, yyyy")}
+                  </div>
+                  <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                    <Clock className="h-4 w-4" />
+                    {booking.time_slot}
+                  </div>
+                </div>
+
+                {/* Details Section */}
+                <div className="p-4 flex-1 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
+                      {booking.partner.avatar_url ? (
+                        <img src={booking.partner.avatar_url} alt="Avatar" className="h-full w-full object-cover" />
+                      ) : (
+                        <User className="h-5 w-5 text-primary" />
+                      )}
+                    </div>
+                    <div>
+                      <p className="font-medium text-foreground text-sm text-muted-foreground">
+                        {role === "student" ? "Tutor" : "Student"}
+                      </p>
+                      <p className="font-semibold text-foreground">
+                        {booking.partner.full_name}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col sm:items-end gap-2 w-full sm:w-auto">
+                    <div className="flex gap-2">
+                      {booking.displayStatus === "scheduled" && !booking.isPast && (
+                        <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                          Upcoming
+                        </Badge>
+                      )}
+                      {booking.displayStatus === "completed" && (
+                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                          Completed
+                        </Badge>
+                      )}
+                      {booking.displayStatus === "cancelled" && (
+                        <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
+                          Cancelled
+                        </Badge>
+                      )}
+                      <Badge variant="secondary" className="font-mono">
+                        ${booking.hourly_rate}/hr
+                      </Badge>
+                    </div>
+
+                    {booking.displayStatus === "scheduled" && !booking.isPast && (
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => handleCancel(booking.id)}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50 h-8 px-3 w-full sm:w-auto border-red-200"
+                      >
+                        <XCircle className="h-4 w-4 mr-1" />
+                        Cancel Booking
+                      </Button>
+                    )}
+                    {booking.displayStatus === "completed" && role === "student" && (
+                      <Button variant="ghost" size="sm" className="h-8 px-2 w-full sm:w-auto text-primary hover:text-primary hover:bg-primary/5" asChild>
+                        <a href={`/tutor/${booking.tutor_id}`}>
+                          <CheckCircle className="h-4 w-4 mr-1" />
+                          Leave Review
+                        </a>
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
+  };
+
+  return (
+    <Tabs defaultValue="upcoming" className="w-full">
+      <TabsList className="grid w-full grid-cols-2 mb-6">
+        <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
+        <TabsTrigger value="past">Past</TabsTrigger>
+      </TabsList>
+      <TabsContent value="upcoming">
+        {renderBookings(upcomingBookings)}
+      </TabsContent>
+      <TabsContent value="past">
+        {renderBookings(pastBookings)}
+      </TabsContent>
+    </Tabs>
   );
 }
