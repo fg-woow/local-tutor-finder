@@ -161,7 +161,7 @@ const BookingCalendar = ({ tutorId, hourlyRate }: BookingCalendarProps) => {
                         Select a time slot for your {hourlyRate > 0 ? `$${hourlyRate}/hr` : "free"} lesson.
                     </p>
 
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    <div className="flex flex-wrap gap-3">
                         {date ? (
                             TIME_SLOTS.map((time) => {
                                 const disabled = isSlotUnavailable(time);
@@ -169,7 +169,7 @@ const BookingCalendar = ({ tutorId, hourlyRate }: BookingCalendarProps) => {
                                     <Button
                                         key={time}
                                         variant={selectedSlot === time ? "default" : disabled ? "secondary" : "outline"}
-                                        className={`justify-start h-auto py-3 px-4 transition-all ${
+                                        className={`flex-1 min-w-[120px] justify-start h-auto py-3 px-4 transition-all ${
                                             disabled
                                                 ? "opacity-70 cursor-not-allowed bg-muted text-muted-foreground border-dashed"
                                                 : "hover:border-primary hover:bg-primary/5"
