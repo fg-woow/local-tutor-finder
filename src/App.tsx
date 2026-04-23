@@ -16,6 +16,7 @@ import ParentDashboard from "./pages/ParentDashboard";
 import Favorites from "./pages/Favorites";
 import Messages from "./pages/Messages";
 import MapView from "./pages/MapView";
+import Bookings from "./pages/Bookings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -40,6 +41,7 @@ const App = () => (
             <Route path="/favorites" element={<Favorites />} />
             <Route path="/messages" element={<Messages />} />
             <Route path="/map" element={<MapView />} />
+            <Route path="/bookings" element={<Bookings />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

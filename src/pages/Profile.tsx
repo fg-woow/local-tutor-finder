@@ -25,7 +25,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth, UserProfile } from "@/hooks/useAuth";
-import SessionHistory from "@/components/SessionHistory";
 
 const isNewUser = (createdAt?: string): boolean => {
   if (!createdAt) return false;
@@ -139,7 +138,7 @@ const StudentProfile = ({ profile }: { profile: UserProfile }) => {
             <h3 className="font-semibold text-foreground">My Bookings</h3>
             <p className="mt-1 text-sm text-muted-foreground">View your upcoming lessons</p>
             <Button variant="outline" size="sm" className="mt-3" asChild>
-              <a href="#session-history">View Bookings</a>
+              <Link to="/bookings">View Bookings</Link>
             </Button>
           </CardContent>
         </Card>
@@ -191,11 +190,7 @@ const StudentProfile = ({ profile }: { profile: UserProfile }) => {
         </CardContent>
       </Card>
 
-      {/* Session History */}
-      <div id="session-history" className="scroll-mt-24">
-        <h2 className="text-xl font-bold mb-4 text-foreground">Session History</h2>
-        <SessionHistory />
-      </div>
+
     </div>
   );
 };
@@ -521,11 +516,7 @@ const TutorProfileView = ({ profile }: { profile: UserProfile }) => {
         </Card>
       </div>
 
-      {/* Session History */}
-      <div className="mt-8">
-        <h2 className="text-xl font-bold mb-4 text-foreground">Session History</h2>
-        <SessionHistory />
-      </div>
+
     </div>
   );
 };
