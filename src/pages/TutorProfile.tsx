@@ -15,7 +15,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import TutorMap from "@/components/TutorMap";
 import { useUserLocation } from "@/hooks/useUserLocation";
-import { calculateDistanceKm } from "@/lib/geolocation";
+import { calculateDistanceKm, CITY_COORDINATES } from "@/lib/geolocation";
 
 interface EnhancedTutor extends Tutor {
   education?: string;
@@ -67,6 +67,14 @@ const TutorProfile = () => {
         // Also fetch rating stats from reviews
         const { averageRating, reviewCount } = await getTutorRatingStats(id!);
 
+        let lat = data.latitude;
+        let lng = data.longitude;
+        if (!lat || !lng) {
+          const fallback = CITY_COORDINATES[data.location || ""] || { latitude: 41.0082, longitude: 28.9784 };
+          lat = fallback.latitude;
+          lng = fallback.longitude;
+        }
+
         setTutor({
           id: data.user_id,
           name: data.full_name,
@@ -87,8 +95,8 @@ const TutorProfile = () => {
           intro_video_url: data.intro_video_url ?? undefined,
           suitable_for: data.suitable_for || [],
           offersTrial: data.offers_trial || false,
-          latitude: data.latitude ?? undefined,
-          longitude: data.longitude ?? undefined,
+          latitude: lat,
+          longitude: lng,
         });
         setIsNew(isNewTutor(data.created_at));
       } else {

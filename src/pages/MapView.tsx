@@ -68,21 +68,28 @@ const MapView = () => {
       const dbIds = new Set((dbProfiles || []).map((p: Profile) => p.user_id));
 
       const dbTutorList: MapTutor[] = (dbProfiles || [])
-        .filter((p: Profile) => p.latitude && p.longitude)
         .map((p: Profile) => {
+          let lat = p.latitude;
+          let lng = p.longitude;
+          
+          if (!lat || !lng) {
+            const fallback = CITY_COORDINATES[p.location || ""] || { latitude: 41.0082, longitude: 28.9784 };
+            lat = fallback.latitude;
+            lng = fallback.longitude;
+          }
           let distance: number | undefined;
-          if (userLocation && p.latitude && p.longitude) {
+          if (userLocation && lat && lng) {
             distance = calculateDistanceKm(userLocation, {
-              latitude: p.latitude,
-              longitude: p.longitude,
+              latitude: lat,
+              longitude: lng,
             });
           }
           return {
             id: p.user_id,
             name: p.full_name,
-            location: p.location || "Unknown",
-            lat: p.latitude!,
-            lng: p.longitude!,
+            location: p.location || "Istanbul",
+            lat: lat!,
+            lng: lng!,
             subjects: p.subjects || [],
             hourlyRate: p.hourly_rate || 0,
             rating: 5.0,
